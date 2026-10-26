@@ -427,6 +427,26 @@ describe('range select', () => {
         expect(selections(off)).toHaveLength(0);
     });
 
+    it('starts nothing from "+N more" or other controls inside a day', async () => {
+        const wrapper = mountMonth({
+            selectable: true,
+            maxLanes: 2,
+            events: [
+                { id: 1, title: 'One', start: '2026-10-14' },
+                { id: 2, title: 'Two', start: '2026-10-14' },
+                { id: 3, title: 'Three', start: '2026-10-14' },
+            ] satisfies TestEvent[],
+        });
+        const more = wrapper.get('button[aria-label^="Show all"]').element;
+
+        pointerOver(more, cell(wrapper, '2026-10-14'));
+        more.dispatchEvent(pointer('pointerdown'));
+        window.dispatchEvent(pointer('pointerup'));
+        await nextTick();
+
+        expect(selections(wrapper)).toHaveLength(0);
+    });
+
     it('cancels on Escape', async () => {
         const wrapper = mountMonth({ selectable: true });
         const anchor = cell(wrapper, '2026-10-14');

@@ -100,6 +100,10 @@ const DRAG_THRESHOLD = 4;
 
 const FOCUSABLE = 'a[href], button, [tabindex]:not([tabindex="-1"])';
 
+/** A press on any of these inside a day is meant for it, not the start of a range selection. */
+const NOT_SELECTION =
+    '[data-event-id], [data-calendar-control], a[href], button, input, select, textarea';
+
 export function useInteractions<T extends CalendarEventInput>(options: InteractionOptions<T>) {
     const drag = shallowRef<DragState<T> | null>(null);
     const selection = shallowRef<{ anchor: DropTarget; current: DropTarget } | null>(null);
@@ -373,7 +377,7 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
             !selectable.value ||
             pointerEvent.button !== 0 ||
             pointerEvent.pointerType === 'touch' ||
-            element?.closest('[data-event-id], [data-calendar-control]')
+            element?.closest(NOT_SELECTION)
         ) {
             return;
         }

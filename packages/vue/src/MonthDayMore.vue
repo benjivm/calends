@@ -25,6 +25,7 @@ const label = computed(() => {
         :as-child="asChild"
         :type="as === 'button' ? 'button' : undefined"
         :aria-label="label"
+        data-calendar-control
     >
         <slot
             :hidden-count="day.hiddenCount"
