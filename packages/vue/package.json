@@ -1,0 +1,54 @@
+{
+    "name": "@calends/vue",
+    "version": "0.0.0",
+    "description": "Headless Vue calendar primitives, styled with data attributes. Ships no CSS.",
+    "keywords": [
+        "vue",
+        "calendar",
+        "headless",
+        "temporal",
+        "scheduler",
+        "gantt",
+        "timeline",
+        "reka-ui"
+    ],
+    "license": "MIT",
+    "author": "Ben Miller",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/benjivm/calends.git",
+        "directory": "packages/vue"
+    },
+    "homepage": "https://github.com/benjivm/calends#readme",
+    "bugs": "https://github.com/benjivm/calends/issues",
+    "type": "module",
+    "sideEffects": false,
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "scripts": {
+        "build": "vite build && vue-tsc -p tsconfig.build.json && node scripts/fix-declarations.mjs",
+        "typecheck": "vue-tsc -p tsconfig.json --noEmit"
+    },
+    "dependencies": {
+        "@calends/core": "workspace:^"
+    },
+    "peerDependencies": {
+        "reka-ui": "^2.11.0",
+        "vue": "^3.5.0"
+    },
+    "devDependencies": {
+        "reka-ui": "^2.11.0",
+        "vue": "~3.5.44"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

@@ -1,0 +1,42 @@
+{
+    "name": "@calends/core",
+    "version": "0.0.0",
+    "description": "Headless calendar core: month, time grid, resource, timeline, and Gantt layouts on Temporal.",
+    "keywords": [
+        "calendar",
+        "headless",
+        "temporal",
+        "scheduler",
+        "gantt",
+        "timeline",
+        "month-view"
+    ],
+    "license": "MIT",
+    "author": "Ben Miller",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/benjivm/calends.git",
+        "directory": "packages/core"
+    },
+    "homepage": "https://github.com/benjivm/calends#readme",
+    "bugs": "https://github.com/benjivm/calends/issues",
+    "type": "module",
+    "sideEffects": false,
+    "files": [
+        "dist"
+    ],
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "scripts": {
+        "build": "vite build && tsc -p tsconfig.build.json",
+        "typecheck": "tsc -p tsconfig.json --noEmit"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}
