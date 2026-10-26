@@ -1,6 +1,6 @@
 {
     "name": "@calends/core",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "Headless calendar core: month, time grid, resource, timeline, and Gantt layouts on Temporal.",
     "keywords": [
         "calendar",
