@@ -1,6 +1,6 @@
 {
     "name": "@calends/vue",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "Headless Vue calendar primitives, styled with data attributes. Ships no CSS.",
     "keywords": [
         "vue",
