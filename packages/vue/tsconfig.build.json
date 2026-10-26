@@ -2,5 +2,5 @@
     "extends": "./tsconfig.json",
     "compilerOptions": { "outDir": "dist", "rootDir": "src" },
     "include": ["src", "src/**/*.vue"],
-    "exclude": ["src/**/*.test.ts"]
+    "exclude": ["src/**/*.test.ts", "src/test-harness.ts"]
 }

@@ -15,7 +15,7 @@ Requires a runtime with native `Temporal`. No polyfill is bundled.
 
 ```sh
 pnpm install
-pnpm test        # vitest, core
+pnpm test        # vitest: core in node, vue in happy-dom
 pnpm typecheck
 pnpm build       # core first, then vue
 pnpm format      # prettier (format:check to verify)

@@ -11,7 +11,7 @@ styled recipes and real-world usage (reference only, not built). Both folders ar
 
 ```sh
 pnpm install
-pnpm test        # vitest (core tests in packages/core/src/*.test.ts)
+pnpm test        # vitest projects: core (node) and vue (happy-dom); --project vue to run one
 pnpm typecheck   # tsc for core, vue-tsc for vue, both strict
 pnpm build       # core first, then vue (vue resolves core from its dist)
 pnpm format      # prettier --write (format:check to verify)
@@ -49,6 +49,9 @@ Run `pnpm build` after changing core if you're type-checking or building vue, si
   is welcome where the name alone doesn't say it.
 - Use the Oxford comma in docs, comments, and UI copy.
 - Tests: Vitest. Core tests sit next to the file (`month.ts` → `month.test.ts`). Cover DST, `weekStartsOn`,
-  multi-week slicing, and layout edge cases. Vue component tests don't exist yet and are wanted (see roadmap).
+  multi-week slicing, and layout edge cases. Vue tests sit next to the component or composable and mount real
+  calendars from `src/test-harness.ts` (excluded from the build). happy-dom has no layout: drag tests say what's
+  under the pointer with `pointerOver`, and time columns get a rect from `layOutMinutes`. Tests import core
+  from source, so they don't need a build first.
 - Releases: every user-facing change gets a changeset. Both packages are versioned together. CI keeps a "Version
   Packages" PR open; merging it publishes (`.github/workflows/release.yml`). Don't run `pnpm release` locally.
