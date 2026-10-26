@@ -21,7 +21,9 @@ pnpm build       # core first, then vue
 pnpm format      # prettier (format:check to verify)
 ```
 
-Releases use changesets: `pnpm changeset`, then `pnpm changeset version` and `pnpm release`.
+Releases use changesets. Add one with `pnpm changeset` alongside the change. On `main`, the Release
+workflow keeps a "Version Packages" pull request up to date, and merging it publishes to npm from CI
+with provenance.
 
 ## License
 

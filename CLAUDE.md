@@ -50,4 +50,5 @@ Run `pnpm build` after changing core if you're type-checking or building vue, si
 - Use the Oxford comma in docs, comments, and UI copy.
 - Tests: Vitest. Core tests sit next to the file (`month.ts` → `month.test.ts`). Cover DST, `weekStartsOn`,
   multi-week slicing, and layout edge cases. Vue component tests don't exist yet and are wanted (see roadmap).
-- Releases: every user-facing change gets a changeset. Both packages are versioned together.
+- Releases: every user-facing change gets a changeset. Both packages are versioned together. CI keeps a "Version
+  Packages" PR open; merging it publishes (`.github/workflows/release.yml`). Don't run `pnpm release` locally.
