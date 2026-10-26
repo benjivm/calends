@@ -24,6 +24,9 @@ pnpm changeset   # record a change for release
 
 Run `pnpm build` after changing core if you're type-checking or building vue, since vue reads core's `dist` types.
 
+A new dependency with an install script needs an `allowBuilds` entry in `pnpm-workspace.yaml`. Locally pnpm only warns
+about it, but in CI (`CI=true`) the install fails with `ERR_PNPM_IGNORED_BUILDS`. Check with `CI=true pnpm install`.
+
 ## Recipes and docs
 
 - **Recipes are Tailwind v4 against shadcn-vue's theme tokens** (`bg-card`, `text-muted-foreground`,
