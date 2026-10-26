@@ -1,40 +1,37 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import MonthCalendar from '@recipes/MonthCalendar.vue';
+import DemoFrame from './DemoFrame.vue';
+import DemoToggle from './DemoToggle.vue';
 import { sampleEvents, useDemoState } from './sample';
 
 const events = ref(sampleEvents());
 const editable = ref(true);
 const selectable = ref(true);
 const loading = ref(false);
-const { status, onDrop, onResize, onSelect } = useDemoState(events, editable);
+const { status, onDrop, onResize, onSelect } = useDemoState(
+    events,
+    editable,
+    'Drag an event, stretch its edge, or click or drag across empty days.',
+);
 </script>
 
 <template>
-    <div class="calendar-demo vp-raw my-6 flex flex-col gap-3">
-        <div class="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <label class="flex items-center gap-1.5">
-                <input
-                    v-model="editable"
-                    type="checkbox"
-                />
-                editable
-            </label>
-            <label class="flex items-center gap-1.5">
-                <input
-                    v-model="selectable"
-                    type="checkbox"
-                />
-                selectable
-            </label>
-            <label class="flex items-center gap-1.5">
-                <input
-                    v-model="loading"
-                    type="checkbox"
-                />
-                loading
-            </label>
-        </div>
+    <DemoFrame :status="status">
+        <template #options>
+            <DemoToggle
+                v-model="editable"
+                label="editable"
+            />
+            <DemoToggle
+                v-model="selectable"
+                label="selectable"
+            />
+            <DemoToggle
+                v-model="loading"
+                label="loading"
+            />
+        </template>
 
         <MonthCalendar
             :events="events"
@@ -46,12 +43,5 @@ const { status, onDrop, onResize, onSelect } = useDemoState(events, editable);
             @event-resize="onResize"
             @range-select="onSelect"
         />
-
-        <p
-            class="text-sm text-muted-foreground"
-            aria-live="polite"
-        >
-            {{ status }}
-        </p>
-    </div>
+    </DemoFrame>
 </template>

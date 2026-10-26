@@ -22,6 +22,10 @@ Recipes use these utilities, so your Tailwind theme needs the matching colors:
 | `border-border`                         | Every border.                                             |
 | `ring-ring`                             | Focus rings.                                              |
 
+A few colors mean the same thing in every theme, so they use Tailwind's default palette instead:
+the current-time line is `red-500`, and the resource view marks free rows green and double-bookings
+red, as the Gantt view does for conflicting dependencies.
+
 Event bars are tinted with your `primary` color, so they follow your brand. To color events by
 category, override the bar's background in the recipe's `event` slot.
 

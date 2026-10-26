@@ -31,7 +31,13 @@ export default defineConfig({
             },
             {
                 text: 'Views',
-                items: [{ text: 'Month', link: '/views/month' }],
+                items: [
+                    { text: 'Month', link: '/views/month' },
+                    { text: 'Time grid', link: '/views/time-grid' },
+                    { text: 'Resources', link: '/views/resources' },
+                    { text: 'Timeline', link: '/views/timeline' },
+                    { text: 'Gantt', link: '/views/gantt' },
+                ],
             },
         ],
         socialLinks: [{ icon: 'github', link: repo }],

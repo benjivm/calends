@@ -28,7 +28,7 @@ Run `pnpm build` after changing core if you're type-checking or building vue, si
 
 - **Recipes are Tailwind v4 against shadcn-vue's theme tokens** (`bg-card`, `text-muted-foreground`,
   `bg-primary`, `border-border`, `ring-ring`, …), so they match any shadcn-vue app with no setup. Use only
-  those tokens, keep shadcn's exact values in `docs/.vitepress/theme/style.css`, write explicit `border-border`
+  those tokens (plus Tailwind's `red`/`green` for the now line and status, which mean the same in every theme), keep shadcn's exact values in `docs/.vitepress/theme/style.css`, write explicit `border-border`
   (Tailwind's preflight defaults borders to `currentColor`), and import nothing but `@calends/*`, `vue`, and
   `reka-ui`. Icons are inline SVG. Recipes are generic over their event type, like `CalendarRoot`.
 - **The no-CSS rule is for the packages.** Recipes are styled by definition, but still with utilities, not
