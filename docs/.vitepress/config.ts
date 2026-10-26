@@ -3,22 +3,27 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitepress';
 
 const repo = 'https://github.com/benjivm/calends';
+const base = '/calends/';
 const fromRoot = (path: string) => fileURLToPath(new URL(`../../${path}`, import.meta.url));
 
 export default defineConfig({
     title: 'Calends',
     description:
         'Headless calendar for Vue: month, time grid, resource, timeline, and Gantt views on native Temporal.',
-    base: '/calends/',
+    base,
     cleanUrls: true,
     lastUpdated: true,
-    head: [['meta', { name: 'theme-color', content: '#171717' }]],
+    // Head tags aren't rewritten for `base`, unlike the logo and hero image.
+    head: [
+        ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}calends-app-icon.svg` }],
+        ['meta', { name: 'theme-color', content: '#121212' }],
+    ],
 
     themeConfig: {
+        logo: { light: '/calends-mark.svg', dark: '/calends-mark-dark.svg', alt: 'Calends' },
         nav: [
             { text: 'Guide', link: '/guide/getting-started' },
             { text: 'Views', link: '/views/month' },
-            { text: 'npm', link: 'https://www.npmjs.com/package/@calends/vue' },
         ],
         sidebar: [
             {

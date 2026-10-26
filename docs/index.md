@@ -5,22 +5,26 @@ hero:
     name: Calends
     text: Headless Vue calendar
     tagline: Month, week, day, resource, timeline, and Gantt.
+    image:
+        light: /calends-mark.svg
+        dark: /calends-mark-dark.svg
+        alt: Calends
     actions:
         - theme: brand
           text: Get started
           link: /guide/getting-started
         - theme: alt
-          text: See the month view
+          text: Examples
           link: /views/month
         - theme: alt
-          text: GitHub
+          text: Source
           link: https://github.com/benjivm/calends
 
 features:
-    - title: Headless
-      details: Ships no CSS. State is exposed as data attributes and layout as CSS variables, so you style it with Tailwind's data-* variants or plain selectors.
-    - title: Vue-native
-      details: Reka-style primitives with as-child, slots everywhere, and v-model:date. No other framework underneath.
-    - title: Scheduling views built in
-      details: Resource, timeline, and Gantt views come in the same package as the month and week views, with drag, resize, range select, and Gantt dependency links.
+    - title: Unstyled
+      details: No CSS included. Style it with Tailwind or plain CSS using data attributes and CSS variables.
+    - title: Vue components
+      details: Reka UI-style components with as-child, slots, and v-model:date.
+    - title: Resource, timeline, and Gantt
+      details: Included with month, week, and day, along with drag, resize, and range select.
 ---

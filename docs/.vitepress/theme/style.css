@@ -108,3 +108,32 @@
     line-height: 1.5;
   }
 }
+
+/*
+ * The site's own look, from the logo: ink #121212 and accent #e5482b. The accent itself is 3.97:1
+ * on white, too low for text, so links and buttons use shades of it that clear 4.5:1.
+ */
+:root {
+  --vp-c-brand-1: #b73a22;
+  --vp-c-brand-2: #c03c24;
+  --vp-c-brand-3: #ca3f26;
+  --vp-c-brand-soft: rgb(229 72 43 / 0.14);
+
+  --vp-home-hero-image-background-image: radial-gradient(rgb(229 72 43 / 0.35), transparent 70%);
+  --vp-home-hero-image-filter: blur(48px);
+}
+
+.dark {
+  --vp-c-brand-1: #ec7660;
+  --vp-c-brand-2: #c03c24;
+  --vp-c-brand-3: #ca3f26;
+  --vp-c-brand-soft: rgb(229 72 43 / 0.16);
+
+  --vp-home-hero-image-background-image: radial-gradient(rgb(229 72 43 / 0.25), transparent 70%);
+}
+
+/* The logo files declare 64×64, and VitePress only caps hero images, so give it a size. */
+.VPHero .image-src {
+  width: 224px;
+  height: 224px;
+}
