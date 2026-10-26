@@ -87,6 +87,31 @@ describe('ResourceGrid state', () => {
         expect(rows[1].attributes('data-idle')).toBe('');
     });
 
+    it('marks a day with two jobs at different times as busy, not double-booked', () => {
+        const wrapper = mountResources({
+            events: [
+                {
+                    id: 1,
+                    title: 'Install',
+                    start: '2026-10-14T07:00',
+                    end: '2026-10-14T11:30',
+                    resourceIds: ['ana'],
+                },
+                {
+                    id: 2,
+                    title: 'Repair',
+                    start: '2026-10-14T12:30',
+                    end: '2026-10-14T16:00',
+                    resourceIds: ['ana'],
+                },
+            ] satisfies TestEvent[],
+        });
+
+        expect(cell(wrapper, '2026-10-14', 0).hasAttribute('data-busy')).toBe(true);
+        expect(cell(wrapper, '2026-10-14', 0).hasAttribute('data-overlap')).toBe(false);
+        expect(wrapper.findAll('[role="row"]')[0].attributes('data-overlap')).toBeUndefined();
+    });
+
     it('labels each cell with its date and event count', () => {
         const wrapper = mountResources({ events });
 

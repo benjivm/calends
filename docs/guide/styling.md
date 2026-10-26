@@ -55,17 +55,17 @@ bar, each day of an overnight event) sets `data-highlighted` on every piece.
 
 ### Days and cells
 
-| Attribute       | Set when                                                                                         | On                                                            |
-| --------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| `data-date`     | Always: the ISO date, like `2026-10-14`.                                                         | `MonthDay`, `ResourceCell`, `TimeColumn`                      |
-| `data-today`    | It's today.                                                                                      | `MonthDay`, `ResourceCell`, `ResourceDayHeader`, `TimeColumn` |
-| `data-weekend`  | It's a Saturday or Sunday.                                                                       | the above, and `MonthWeekday`                                 |
-| `data-outside`  | It belongs to the previous or next month.                                                        | `MonthDay`                                                    |
-| `data-focused`  | It's the grid's focus position (the one cell with `tabindex=0`).                                 | `MonthDay`, `ResourceCell`                                    |
-| `data-selected` | It's inside the range being selected.                                                            | `MonthDay`, `ResourceCell`                                    |
-| `data-overflow` | Some of its events are hidden behind "+N more"; on a week, it needs more lanes than `max-lanes`. | `MonthDay`, `MonthWeek`                                       |
-| `data-busy`     | It has at least one event.                                                                       | `ResourceCell`                                                |
-| `data-overlap`  | It has overlapping events, like a double-booked technician.                                      | `ResourceCell`, and `ResourceRow` when any day does           |
+| Attribute       | Set when                                                                                                                                                                          | On                                                            |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `data-date`     | Always: the ISO date, like `2026-10-14`.                                                                                                                                          | `MonthDay`, `ResourceCell`, `TimeColumn`                      |
+| `data-today`    | It's today.                                                                                                                                                                       | `MonthDay`, `ResourceCell`, `ResourceDayHeader`, `TimeColumn` |
+| `data-weekend`  | It's a Saturday or Sunday.                                                                                                                                                        | the above, and `MonthWeekday`                                 |
+| `data-outside`  | It belongs to the previous or next month.                                                                                                                                         | `MonthDay`                                                    |
+| `data-focused`  | It's the grid's focus position (the one cell with `tabindex=0`).                                                                                                                  | `MonthDay`, `ResourceCell`                                    |
+| `data-selected` | It's inside the range being selected.                                                                                                                                             | `MonthDay`, `ResourceCell`                                    |
+| `data-overflow` | Some of its events are hidden behind "+N more"; on a week, it needs more lanes than `max-lanes`.                                                                                  | `MonthDay`, `MonthWeek`                                       |
+| `data-busy`     | It has at least one event.                                                                                                                                                        | `ResourceCell`                                                |
+| `data-overlap`  | Two of its events are booked at the same time, like a double-booked technician. Timed events count only when their times overlap; an all-day event overlaps anything on its days. | `ResourceCell`, and `ResourceRow` when any day does           |
 
 ### Rows and containers
 

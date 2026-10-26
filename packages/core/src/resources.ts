@@ -37,6 +37,11 @@ export interface ResourceCell<T extends CalendarEventInput = CalendarEventInput>
     /** Segments whose bar starts in this cell. */
     segments: EventSegment<T>[];
     eventCount: number;
+    /**
+     * Two of its events are booked at the same time, such as a double-booked technician. Timed
+     * events overlap only when their times do; an all-day event overlaps anything on its days.
+     */
+    hasOverlap: boolean;
 }
 
 export interface ResourceRow<
@@ -49,7 +54,7 @@ export interface ResourceRow<
     laneCount: number;
     /** Days in the range with at least one event. */
     busyDays: number;
-    /** Days in the range with overlapping events, such as a double-booked technician. */
+    /** Days in the range where a cell `hasOverlap`. */
     overlapDays: number;
 }
 
@@ -96,14 +101,23 @@ export function createResourceGrid<T extends CalendarEventInput, R extends Calen
         const rowEvents = byResource.get(resource?.id ?? null) ?? [];
         const { segments, laneCount } = packLanes(sliceEvents(rowEvents, start, end));
 
-        const cells = days.map(({ date, column }): ResourceCell<T> => ({
-            date,
-            column,
-            segments: segments.filter((segment) => segment.column === column),
-            eventCount: segments.filter(
+        const cells = days.map(({ date, column }): ResourceCell<T> => {
+            const covering = segments.filter(
                 (segment) => segment.column <= column && column < segment.column + segment.span,
-            ).length,
-        }));
+            );
+
+            return {
+                date,
+                column,
+                segments: segments.filter((segment) => segment.column === column),
+                eventCount: covering.length,
+                hasOverlap: covering.some((segment, index) =>
+                    covering
+                        .slice(index + 1)
+                        .some((other) => bookedTogether(segment.event, other.event)),
+                ),
+            };
+        });
 
         return {
             resource,
@@ -111,7 +125,7 @@ export function createResourceGrid<T extends CalendarEventInput, R extends Calen
             segments,
             laneCount,
             busyDays: cells.filter((cell) => cell.eventCount > 0).length,
-            overlapDays: cells.filter((cell) => cell.eventCount > 1).length,
+            overlapDays: cells.filter((cell) => cell.hasOverlap).length,
         };
     };
 
@@ -122,4 +136,23 @@ export function createResourceGrid<T extends CalendarEventInput, R extends Calen
     }
 
     return { start, end, days, rows };
+}
+
+/**
+ * For two events that both cover a day: any overlap between them falls on that day too, so their
+ * full times can be compared without clipping to it. Ends are exclusive, so back-to-back is free.
+ */
+function bookedTogether(a: CalendarEvent, b: CalendarEvent): boolean {
+    if (a.allDay || b.allDay) return true;
+
+    return (
+        Temporal.ZonedDateTime.compare(
+            a.start as Temporal.ZonedDateTime,
+            b.end as Temporal.ZonedDateTime,
+        ) < 0 &&
+        Temporal.ZonedDateTime.compare(
+            b.start as Temporal.ZonedDateTime,
+            a.end as Temporal.ZonedDateTime,
+        ) < 0
+    );
 }

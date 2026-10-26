@@ -71,7 +71,61 @@ describe('createResourceGrid', () => {
         expect(bob.laneCount).toBe(2);
         expect(bob.busyDays).toBe(5);
         expect(bob.overlapDays).toBe(2);
-        expect(bob.cells[6].eventCount).toBe(2);
+        expect(bob.cells[6]).toMatchObject({ eventCount: 2, hasOverlap: true });
+    });
+
+    describe('timed events only overlap when their times do', () => {
+        const day = (bookings: Booking[]) => grid(bookings).rows[1];
+        const october12 = 11;
+
+        it('lets a morning and an afternoon job share a day', () => {
+            const bob = day([
+                { id: 'a', start: '2026-10-12T07:00', end: '2026-10-12T11:30', techs: ['bob'] },
+                { id: 'b', start: '2026-10-12T12:30', end: '2026-10-12T16:00', techs: ['bob'] },
+            ]);
+
+            expect(bob.cells[october12]).toMatchObject({ eventCount: 2, hasOverlap: false });
+            expect(bob.overlapDays).toBe(0);
+        });
+
+        it('counts jobs whose times overlap', () => {
+            const bob = day([
+                { id: 'a', start: '2026-10-12T08:00', end: '2026-10-12T17:00', techs: ['bob'] },
+                { id: 'b', start: '2026-10-12T10:00', end: '2026-10-12T11:00', techs: ['bob'] },
+            ]);
+
+            expect(bob.cells[october12].hasOverlap).toBe(true);
+            expect(bob.overlapDays).toBe(1);
+        });
+
+        it('treats back-to-back jobs as free, since ends are exclusive', () => {
+            const bob = day([
+                { id: 'a', start: '2026-10-12T08:00', end: '2026-10-12T10:00', techs: ['bob'] },
+                { id: 'b', start: '2026-10-12T10:00', end: '2026-10-12T12:00', techs: ['bob'] },
+            ]);
+
+            expect(bob.overlapDays).toBe(0);
+        });
+
+        it('lets an all-day event overlap anything on its day', () => {
+            const bob = day([
+                { id: 'a', start: '2026-10-12', techs: ['bob'] },
+                { id: 'b', start: '2026-10-12T10:00', end: '2026-10-12T11:00', techs: ['bob'] },
+            ]);
+
+            expect(bob.cells[october12].hasOverlap).toBe(true);
+        });
+
+        it('counts an overnight overlap on the day it happens, not the day before', () => {
+            const bob = day([
+                { id: 'a', start: '2026-10-12T20:00', end: '2026-10-13T03:00', techs: ['bob'] },
+                { id: 'b', start: '2026-10-13T02:00', end: '2026-10-13T04:00', techs: ['bob'] },
+            ]);
+
+            expect(bob.cells[october12].hasOverlap).toBe(false);
+            expect(bob.cells[october12 + 1].hasOverlap).toBe(true);
+            expect(bob.overlapDays).toBe(1);
+        });
     });
 
     it('collects events with no known resource in an unassigned row when asked', () => {

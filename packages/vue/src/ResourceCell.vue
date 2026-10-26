@@ -66,7 +66,7 @@ function onFocus() {
         :data-today="day?.isToday ? '' : undefined"
         :data-weekend="day?.isWeekend ? '' : undefined"
         :data-busy="cell.eventCount ? '' : undefined"
-        :data-overlap="cell.eventCount > 1 ? '' : undefined"
+        :data-overlap="cell.hasOverlap ? '' : undefined"
         :data-focused="isFocused ? '' : undefined"
         :data-selected="isSelected ? '' : undefined"
         data-drop="day"
