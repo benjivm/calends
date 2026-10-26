@@ -42,7 +42,7 @@ const props = withDefaults(
         /**
          * Lines between rows, by event id. A `dependency` (the default) runs from `from`'s end to
          * `to`'s start with an arrow, and turns red when `to` starts before `from` ends; a
-         * `related` link is dashed with no arrow.
+         * `related` link is dashed with no arrow. A `label` is drawn on the line.
          */
         links?: readonly GanttLinkInput[];
         /** Names what a row is, for the header count: "12 projects". */
@@ -443,6 +443,17 @@ function columnLabel(column: GanttColumn) {
                                     :d="item.arrow"
                                     fill="currentColor"
                                 />
+                                <!-- The card-colored stroke under the fill clears the line behind the text. -->
+                                <text
+                                    v-if="item.link.label"
+                                    :x="item.labelPoint.x"
+                                    :y="item.labelPoint.y"
+                                    text-anchor="end"
+                                    dominant-baseline="central"
+                                    class="fill-current stroke-card stroke-4 text-[0.6875rem] font-medium [paint-order:stroke] [stroke-linejoin:round]"
+                                >
+                                    {{ item.link.label }}
+                                </text>
                             </g>
                         </GanttLinks>
 

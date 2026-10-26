@@ -41,7 +41,7 @@ zoom, and hover a bar to light up its links. A name that doesn't fit inside its 
 ```ts
 const links = [
     { id: 1, from: 'design', to: 'build' }, // a dependency
-    { id: 2, from: 'build', to: 'docs', kind: 'related' },
+    { id: 2, from: 'build', to: 'docs', kind: 'related', label: 'shares copy' },
 ];
 ```
 
@@ -49,13 +49,16 @@ const links = [
   starts before `from` ends, the link has `conflict: true`, and the recipe draws it red.
 - **A related link** has no direction. It's drawn from whichever row starts first, and the recipe
   dashes it with no arrow.
+- **A `label`** is text drawn on the line, such as a link type from your tracker ("blocks").
 - Links whose `from` or `to` aren't in `events` are dropped.
 
 `GanttLinks` is an SVG overlay that measures the rendered bars, so it follows zoom, row height, and
-drag previews without any geometry of yours. Its slot gives each link's `path` and `arrow` (SVG path
-data), plus `highlighted` and `dimmed` while a bar is hovered or focused. Place it over the rows,
-inside the scrolling content. For custom drawing, the core exports `routeGanttLink`, `roundedPath`,
-and `ganttLinkArrow`.
+drag previews without any geometry of yours. A line leaves through the predecessor's top or bottom
+edge, as late in the bar as leaves room to turn into the successor, so it never crosses a name drawn
+beside the bar. Its slot gives each link's `path` and `arrow` (SVG path data), `labelPoint` (where a
+right-aligned `link.label` ends, just before the arrow), plus `highlighted` and `dimmed` while a bar
+is hovered or focused. Place it over the rows, inside the scrolling content. For custom drawing, the
+core exports `routeGanttLink`, `roundedPath`, and `ganttLinkArrow`.
 
 ## Anatomy
 

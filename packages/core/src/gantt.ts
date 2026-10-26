@@ -34,12 +34,15 @@ export interface GanttLinkInput {
     from: string | number;
     to: string | number;
     kind?: GanttLinkKind;
+    /** Text drawn on the line, such as "blocks". */
+    label?: string;
 }
 
 export interface GanttLink<T extends CalendarEventInput = CalendarEventInput> {
     id: string | number;
     source: GanttLinkInput;
     kind: GanttLinkKind;
+    label?: string;
     from: GanttRow<T>;
     to: GanttRow<T>;
     /** A dependency whose successor starts before its predecessor ends. */
@@ -215,6 +218,7 @@ function resolveLinks<T extends CalendarEventInput>(
                 id: source.id,
                 source,
                 kind,
+                label: source.label,
                 from,
                 to,
                 conflict:
@@ -236,38 +240,54 @@ export interface GanttPoint {
     y: number;
 }
 
+/** A bar's box, in the overlay's coordinates. */
+export interface GanttBox {
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+}
+
 export interface GanttLinkRouteOptions {
-    /** How far the line runs straight out of a bar and into the next, in pixels. */
+    /** How far in from a bar's ends the line may leave it, and how far it runs into the next, in pixels. */
     gap?: number;
     /**
-     * Where to run across when the successor starts left of where the line leaves: the edge
+     * Where to run across when the successor starts too early to drop straight down to it: the edge
      * of the predecessor's row facing the successor, so the detour stays between rows.
      */
     gutterY: number;
 }
 
 /**
- * The corners of a line from a bar's end to another bar's start: out, across, and in when
- * there's room, or out, down to the gutter, back left, and in when the successor starts earlier.
+ * The corners of a line from one bar to another's start. It leaves through the predecessor's edge
+ * facing the successor, never its end, so it can't cross a name drawn beside the bar. It drops as
+ * late in the bar as leaves room to turn into the successor, or runs along the gutter and back
+ * when the successor starts too early for that.
  */
 export function routeGanttLink(
-    from: GanttPoint,
-    to: GanttPoint,
+    from: GanttBox,
+    to: GanttBox,
     { gap = 12, gutterY }: GanttLinkRouteOptions,
 ): GanttPoint[] {
-    if (to.x - from.x >= gap * 2) {
-        const turn = from.x + gap;
+    const inset = Math.min(gap, (from.right - from.left) / 2);
+    const earliest = from.left + inset;
+    const drop = Math.max(earliest, Math.min(from.right - inset, to.left - gap));
+    const toY = (to.top + to.bottom) / 2;
+    const below = toY > (from.top + from.bottom) / 2;
+    const edgeY = below ? from.bottom : from.top;
+    const end = { x: to.left, y: toY };
 
-        return [from, { x: turn, y: from.y }, { x: turn, y: to.y }, to];
+    // A narrow bar can't leave a full gap, so a successor starting after it may run in shorter.
+    if (to.left - drop >= Math.min(gap / 2, inset)) {
+        return [{ x: drop, y: edgeY }, { x: drop, y: toY }, end];
     }
 
     return [
-        from,
-        { x: from.x + gap, y: from.y },
-        { x: from.x + gap, y: gutterY },
-        { x: to.x - gap, y: gutterY },
-        { x: to.x - gap, y: to.y },
-        to,
+        { x: earliest, y: edgeY },
+        { x: earliest, y: gutterY },
+        { x: to.left - gap, y: gutterY },
+        { x: to.left - gap, y: toY },
+        end,
     ];
 }
 

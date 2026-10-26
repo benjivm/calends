@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
-import { ganttLinkArrow, roundedPath, routeGanttLink, type GanttLink } from '@calends/core';
+import {
+    ganttLinkArrow,
+    roundedPath,
+    routeGanttLink,
+    type GanttLink,
+    type GanttPoint,
+} from '@calends/core';
 import { injectCalendarContext } from './useCalendar.js';
 
 /**
  * An SVG overlay of the links between rows. Lay it over the rows (absolute, the same box)
  * inside the scrolled content: it measures the rendered bars, so it follows any zoom, row
- * height, or drag preview. The slot draws each link from its `path` and `arrow`.
+ * height, or drag preview. The slot draws each link from its `path` and `arrow`, and can end
+ * its `link.label` at `labelPoint`: on the last leg, just before the arrow, in the successor's row.
  */
 const props = withDefaults(
     defineProps<{
-        /** How far a line runs straight out of a bar and into the next, in pixels. */
+        /** How far in from a bar's ends a line may leave it, and how far it runs into the next, in pixels. */
         gap?: number;
         radius?: number;
         arrowSize?: number;
@@ -26,6 +33,8 @@ interface MeasuredLink {
     link: GanttLink<any>;
     path: string;
     arrow: string;
+    /** Where a right-aligned label ends. The last leg runs through open track, unlike legs that cross rows. */
+    labelPoint: GanttPoint;
 }
 
 const measured = shallowRef<MeasuredLink[]>([]);
@@ -51,27 +60,29 @@ function measure() {
             return [];
         }
 
-        const fromRect = fromBar.getBoundingClientRect();
-        const toRect = toBar.getBoundingClientRect();
-        const rowRect = fromRow.getBoundingClientRect();
-        const from = {
-            x: fromRect.right - origin.left,
-            y: fromRect.top + fromRect.height / 2 - origin.top,
+        const box = (element: Element) => {
+            const rect = element.getBoundingClientRect();
+
+            return {
+                left: rect.left - origin.left,
+                right: rect.right - origin.left,
+                top: rect.top - origin.top,
+                bottom: rect.bottom - origin.top,
+            };
         };
-        const to = {
-            x: toRect.left - origin.left,
-            y: toRect.top + toRect.height / 2 - origin.top,
-        };
-        const gutterY = (to.y > from.y ? rowRect.bottom : rowRect.top) - origin.top;
+        const from = box(fromBar);
+        const to = box(toBar);
+        const row = box(fromRow);
+        const gutterY = to.top > from.top ? row.bottom : row.top;
+        const points = routeGanttLink(from, to, { gap: props.gap, gutterY });
+        const end = points[points.length - 1];
 
         return [
             {
                 link,
-                path: roundedPath(
-                    routeGanttLink(from, to, { gap: props.gap, gutterY }),
-                    props.radius,
-                ),
-                arrow: ganttLinkArrow(to, props.arrowSize),
+                path: roundedPath(points, props.radius),
+                arrow: ganttLinkArrow(end, props.arrowSize),
+                labelPoint: { x: end.x - props.arrowSize - 3, y: end.y },
             },
         ];
     });

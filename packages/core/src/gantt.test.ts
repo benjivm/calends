@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { normalizeEvents, type CalendarEventInput } from './events.js';
-import { createGantt } from './gantt.js';
+import { createGantt, routeGanttLink } from './gantt.js';
 
 const date = (value: string) => Temporal.PlainDate.from(value);
 const tasks = (inputs: CalendarEventInput[]) =>
@@ -87,5 +87,88 @@ describe('createGantt', () => {
 
         expect(gantt.start).toEqual(date('2026-08-16'));
         expect(gantt.rows[0]).toMatchObject({ endOffset: gantt.axisDays, continuesAfter: true });
+    });
+});
+
+describe('gantt links', () => {
+    it('resolves links with their label, drops unknown ends, and flags conflicts', () => {
+        const gantt = createGantt({
+            events: projects,
+            today: date('2026-10-25'),
+            links: [
+                { id: 1, from: 'a', to: 'b', label: 'blocks' },
+                { id: 2, from: 'b', to: 'a' },
+                { id: 3, from: 'a', to: 'missing' },
+            ],
+        });
+
+        expect(gantt.links.map((link) => [link.id, link.label, link.conflict])).toEqual([
+            [1, 'blocks', false],
+            [2, undefined, true],
+        ]);
+    });
+
+    it('draws a related link from whichever row starts first', () => {
+        const gantt = createGantt({
+            events: projects,
+            today: date('2026-10-25'),
+            links: [{ id: 1, from: 'b', to: 'a', kind: 'related' }],
+        });
+
+        expect([gantt.links[0].from.event.id, gantt.links[0].to.event.id]).toEqual(['a', 'b']);
+    });
+});
+
+describe('routeGanttLink', () => {
+    const bar = (left: number, right: number, top: number) => ({
+        left,
+        right,
+        top,
+        bottom: top + 20,
+    });
+
+    it('drops from the bottom edge near the end, never out of the end past a side label', () => {
+        const points = routeGanttLink(bar(0, 100, 0), bar(200, 300, 100), { gutterY: 30 });
+
+        expect(points).toEqual([
+            { x: 88, y: 20 },
+            { x: 88, y: 110 },
+            { x: 200, y: 110 },
+        ]);
+    });
+
+    it('leaves through the top edge when the successor is above', () => {
+        const points = routeGanttLink(bar(0, 100, 100), bar(200, 300, 0), { gutterY: 90 });
+
+        expect(points[0]).toEqual({ x: 88, y: 100 });
+        expect(points[1]).toEqual({ x: 88, y: 10 });
+    });
+
+    it('drops early enough to turn into a successor that starts inside the bar', () => {
+        const points = routeGanttLink(bar(0, 100, 0), bar(50, 150, 100), { gutterY: 30 });
+
+        expect(points[0]).toEqual({ x: 38, y: 20 });
+    });
+
+    it('drops from the middle of a narrow bar into a successor right after it', () => {
+        const points = routeGanttLink(bar(0, 8, 0), bar(12, 40, 100), { gutterY: 30 });
+
+        expect(points).toEqual([
+            { x: 4, y: 20 },
+            { x: 4, y: 110 },
+            { x: 12, y: 110 },
+        ]);
+    });
+
+    it('runs along the gutter when the successor starts before there is room to turn', () => {
+        const points = routeGanttLink(bar(100, 200, 0), bar(50, 150, 100), { gutterY: 30 });
+
+        expect(points).toEqual([
+            { x: 112, y: 20 },
+            { x: 112, y: 30 },
+            { x: 38, y: 30 },
+            { x: 38, y: 110 },
+            { x: 50, y: 110 },
+        ]);
     });
 });

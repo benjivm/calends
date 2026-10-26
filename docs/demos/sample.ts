@@ -130,11 +130,11 @@ export function sampleProjects(): DemoEvent[] {
 
 export const projectLinks: GanttLinkInput[] = [
     { id: 'research-design', from: 'research', to: 'design' },
-    { id: 'design-web', from: 'design', to: 'web' },
+    { id: 'design-web', from: 'design', to: 'web', label: 'Specs' },
     { id: 'api-web', from: 'api', to: 'web' },
     { id: 'web-launch', from: 'web', to: 'launch' },
     { id: 'beta-launch', from: 'beta', to: 'launch' },
-    { id: 'api-beta', from: 'api', to: 'beta', kind: 'related' },
+    { id: 'api-beta', from: 'api', to: 'beta', kind: 'related', label: 'Shares auth' },
 ];
 
 /** Back to the wall-clock strings the samples are written in. */
