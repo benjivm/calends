@@ -1,7 +1,9 @@
 # Calends
 
 Headless calendar for Vue: `@calends/core` (plain TS on native `Temporal`) and `@calends/vue`
-(unstyled primitives, peer deps `vue` and `reka-ui`).
+(unstyled primitives, peer deps `vue` and `reka-ui`). Two private workspace packages sit beside them:
+`recipes/` (styled, copy-in components built on the primitives) and `docs/` (the VitePress site, deployed
+to GitHub Pages at `benjivm.github.io/calends`).
 
 Read `notes/roadmap.md` before planning work: it has the architecture, what's built, the remaining M4 extraction
 steps, the backlog, and open questions. `notes/alternatives.md` explains why this exists. `reference/` holds
@@ -12,13 +14,31 @@ styled recipes and real-world usage (reference only, not built). Both folders ar
 ```sh
 pnpm install
 pnpm test        # vitest projects: core (node) and vue (happy-dom); --project vue to run one
-pnpm typecheck   # tsc for core, vue-tsc for vue, both strict
-pnpm build       # core first, then vue (vue resolves core from its dist)
+pnpm typecheck   # tsc for core, vue-tsc for vue, docs, and recipes, all strict
+pnpm build       # the two packages: core first, then vue (vue resolves core from its dist)
+pnpm docs:dev    # VitePress, with @calends/* aliased to source so library edits hot-reload
+pnpm docs:build  # what CI and the Pages deploy run
 pnpm format      # prettier --write (format:check to verify)
 pnpm changeset   # record a change for release
 ```
 
 Run `pnpm build` after changing core if you're type-checking or building vue, since vue reads core's `dist` types.
+
+## Recipes and docs
+
+- **Recipes are Tailwind v4 against shadcn-vue's theme tokens** (`bg-card`, `text-muted-foreground`,
+  `bg-primary`, `border-border`, `ring-ring`, …), so they match any shadcn-vue app with no setup. Use only
+  those tokens, keep shadcn's exact values in `docs/.vitepress/theme/style.css`, write explicit `border-border`
+  (Tailwind's preflight defaults borders to `currentColor`), and import nothing but `@calends/*`, `vue`, and
+  `reka-ui`. Icons are inline SVG. Recipes are generic over their event type, like `CalendarRoot`.
+- **The no-CSS rule is for the packages.** Recipes are styled by definition, but still with utilities, not
+  `<style>` blocks.
+- **Demos go in `.calendar-demo vp-raw`** inside `<ClientOnly>` (they depend on the clock). VitePress's styles are
+  unlayered and beat Tailwind's layers, so `postcssIsolateStyles` keeps them out of `.vp-raw`, and the demo
+  container gets a scoped preflight. Popovers portal to `<body>`; the preflight covers
+  `[data-reka-popper-content-wrapper]` too.
+- **Every attribute and variable a primitive renders belongs in `docs/guide/styling.md`.** Update it with the
+  component.
 
 ## Architecture rules
 

@@ -5,3 +5,5 @@ dist
 # Local planning and reference material
 notes/
 reference/
+docs/.vitepress/dist
+docs/.vitepress/cache

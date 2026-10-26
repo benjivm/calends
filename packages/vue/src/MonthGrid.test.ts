@@ -49,7 +49,7 @@ describe('MonthGrid keyboard', () => {
         expect(focusable(wrapper)).toEqual(['2026-10-14']);
     });
 
-    it('jumps to the ends of the week with Home and End, honouring weekStartsOn', async () => {
+    it('jumps to the ends of the week with Home and End, honoring weekStartsOn', async () => {
         const wrapper = mountMonth({ weekStartsOn: 1 });
 
         cell(wrapper, '2026-10-14').focus();

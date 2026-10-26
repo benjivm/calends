@@ -14,7 +14,7 @@ describe('visibleMonthRange', () => {
         expect(range.end).toEqual(date('2026-10-31'));
     });
 
-    it('honours weekStartsOn', () => {
+    it('honors weekStartsOn', () => {
         const range = visibleMonthRange(date('2026-10-15'), 1);
 
         expect(range.start).toEqual(date('2026-09-28'));

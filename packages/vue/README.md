@@ -96,9 +96,11 @@ const events = [
 ```
 
 Bars sit inside their start day's gridcell (so the ARIA grid stays intact) and span across with
-`--event-span`. Inside the views, events are typed as plain `CalendarEventInput`; read your own
-fields from an event primitive's slot (`event.source`), which is typed loosely for that. Every segment of a multi-week event gets `data-highlighted` together on hover or
+`--event-span`. Every segment of a multi-week event gets `data-highlighted` together on hover or
 focus.
+
+Inside the views, events are typed as plain `CalendarEventInput`, so read your own fields from an event
+primitive's slot (`event.source`), which is typed loosely for that.
 
 ## Components
 

@@ -19,6 +19,7 @@ pnpm test        # vitest: core in node, vue in happy-dom
 pnpm typecheck
 pnpm build       # core first, then vue
 pnpm format      # prettier (format:check to verify)
+pnpm docs:dev    # the docs site, with live demos from recipes/
 ```
 
 Releases use changesets. Add one with `pnpm changeset` alongside the change. On `main`, the Release

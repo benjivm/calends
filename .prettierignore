@@ -3,3 +3,5 @@ pnpm-lock.yaml
 .changeset/*.md
 notes
 reference
+docs/.vitepress/dist
+docs/.vitepress/cache

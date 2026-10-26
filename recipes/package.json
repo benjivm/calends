@@ -1,0 +1,11 @@
+{
+    "name": "calends-recipes",
+    "private": true,
+    "type": "module",
+    "dependencies": {
+        "@calends/core": "workspace:*",
+        "@calends/vue": "workspace:*",
+        "reka-ui": "^2.11.0",
+        "vue": "~3.5.44"
+    }
+}

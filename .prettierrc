@@ -6,7 +6,7 @@
     "trailingComma": "all",
     "htmlWhitespaceSensitivity": "css",
     "singleAttributePerLine": true,
-    "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+    "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
     "importOrder": ["^vue$", "^@(?!/).*$", "<THIRD_PARTY_MODULES>", "^[.]"],
     "importOrderTypeScriptVersion": "5.0.0",
     "overrides": [
@@ -16,5 +16,6 @@
                 "tabWidth": 2
             }
         }
-    ]
+    ],
+    "tailwindStylesheet": "./docs/.vitepress/theme/style.css"
 }

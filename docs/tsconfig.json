@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "jsx": "preserve",
+        "jsxImportSource": "vue",
+        "paths": {
+            "@calends/core": ["../packages/core/src/index.ts"],
+            "@calends/vue": ["../packages/vue/src/index.ts"],
+            "@recipes/*": ["../recipes/*"]
+        },
+        "types": ["vite/client"]
+    },
+    "include": [".vitepress/**/*.ts", ".vitepress/**/*.vue", "demos/**/*", "../recipes/**/*.vue"]
+}
