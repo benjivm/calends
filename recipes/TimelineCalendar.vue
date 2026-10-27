@@ -283,7 +283,7 @@ const timeLabel = (event: CalendarEvent) =>
                                 :key="item.event.id"
                                 :item="item"
                                 :resource-id="resources ? (row.resource?.id ?? null) : undefined"
-                                class="absolute top-[calc(0.25rem+var(--event-lane)*1.625rem)] left-[calc(var(--event-start)/var(--axis-minutes)*100%+1px)] z-10 h-6 w-[max(calc((var(--event-end)-var(--event-start))/var(--axis-minutes)*100%-2px),0.75rem)] rounded-sm data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-ends-after:rounded-r-none data-past:opacity-60 data-starts-before:rounded-l-none"
+                                class="absolute top-[calc(0.25rem+var(--event-lane)*1.625rem)] left-[calc(var(--event-start)/var(--axis-minutes)*100%+1px)] z-10 h-6 w-[max(calc((var(--event-end)-var(--event-start))/var(--axis-minutes)*100%-2px),0.75rem)] rounded-sm data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none] data-ends-after:rounded-r-none data-past:opacity-60 data-starts-before:rounded-l-none"
                             >
                                 <slot
                                     name="event"
@@ -309,12 +309,12 @@ const timeLabel = (event: CalendarEvent) =>
                                 <EventResizeHandle
                                     v-if="!item.startsBefore"
                                     edge="start"
-                                    class="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize"
+                                    class="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize pointer-coarse:w-3"
                                 />
                                 <EventResizeHandle
                                     v-if="!item.endsAfter"
                                     edge="end"
-                                    class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize"
+                                    class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize pointer-coarse:w-3"
                                 />
                             </TimelineEvent>
 

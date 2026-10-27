@@ -1,6 +1,6 @@
 import { nextTick } from 'vue';
 import { enableAutoUnmount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
     announcement,
     cell,
@@ -271,20 +271,6 @@ describe('pointer drags', () => {
         expect(startDayOf(wrapper, 1)).toBe('2026-10-14');
     });
 
-    it('ignores touch, so the page can still scroll', async () => {
-        const wrapper = mountMonth({ events: allDay, editable: true });
-        const bar = eventElement(wrapper, 1);
-
-        pointerOver(bar, cell(wrapper, '2026-10-14'));
-        bar.dispatchEvent(pointer('pointerdown', { pointerType: 'touch' }));
-        pointerOver(cell(wrapper, '2026-10-16'));
-        window.dispatchEvent(pointer('pointermove', { clientX: 40, pointerType: 'touch' }));
-        window.dispatchEvent(pointer('pointerup', { pointerType: 'touch' }));
-        await nextTick();
-
-        expect(drops(wrapper)).toHaveLength(0);
-    });
-
     it('resizes from the end handle and reports a resize', async () => {
         const wrapper = mountMonth({ events: allDay, editable: true });
 
@@ -348,6 +334,284 @@ describe('pointer drags', () => {
 
         expect(click.defaultPrevented).toBe(true);
         expect(clicks).toBe(0);
+    });
+});
+
+describe('touch', () => {
+    beforeEach(() => {
+        installPointerStub();
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    const touch = (type: string, init: PointerEventInit = {}) =>
+        pointer(type, { pointerType: 'touch', ...init });
+
+    const touchmove = () => new Event('touchmove', { bubbles: true, cancelable: true });
+
+    it('lets a swipe scroll: moving before the long press starts no drag', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const bar = eventElement(wrapper, 1);
+
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(touch('pointerdown'));
+        pointerOver(cell(wrapper, '2026-10-16'));
+        window.dispatchEvent(touch('pointermove', { clientX: 40 }));
+
+        const scroll = touchmove();
+        bar.dispatchEvent(scroll);
+        vi.advanceTimersByTime(1000);
+        window.dispatchEvent(touch('pointerup'));
+        await nextTick();
+
+        expect(scroll.defaultPrevented).toBe(false);
+        expect(drops(wrapper)).toHaveLength(0);
+        expect(eventElement(wrapper, 1).hasAttribute('data-dragging')).toBe(false);
+    });
+
+    it('lifts an event on a long press, then drags it without scrolling', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const bar = eventElement(wrapper, 1);
+
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(touch('pointerdown'));
+        vi.advanceTimersByTime(500);
+        await nextTick();
+
+        expect(eventElement(wrapper, 1).hasAttribute('data-dragging')).toBe(true);
+
+        pointerOver(cell(wrapper, '2026-10-16'));
+        window.dispatchEvent(touch('pointermove', { clientX: 40 }));
+
+        // The bar has moved to another cell, so the touch's own element is out of the document.
+        const scroll = touchmove();
+        bar.dispatchEvent(scroll);
+        window.dispatchEvent(touch('pointerup'));
+        await nextTick();
+
+        expect(scroll.defaultPrevented).toBe(true);
+        expect(wall(drops(wrapper)[0].start)).toBe('2026-10-16');
+    });
+
+    it('keeps the context menu shut during a long press', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const bar = eventElement(wrapper, 1);
+
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(touch('pointerdown'));
+
+        const menu = new Event('contextmenu', { bubbles: true, cancelable: true });
+        bar.dispatchEvent(menu);
+        window.dispatchEvent(touch('pointerup'));
+
+        const later = new Event('contextmenu', { bubbles: true, cancelable: true });
+        bar.dispatchEvent(later);
+
+        expect(menu.defaultPrevented).toBe(true);
+        expect(later.defaultPrevented).toBe(false);
+    });
+
+    it('leaves touches on events alone when the calendar is not editable', async () => {
+        const wrapper = mountMonth({ events: allDay });
+        const bar = eventElement(wrapper, 1);
+
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(touch('pointerdown'));
+
+        const menu = new Event('contextmenu', { bubbles: true, cancelable: true });
+        bar.dispatchEvent(menu);
+
+        expect(menu.defaultPrevented).toBe(false);
+    });
+
+    it('resizes from a handle after a long press', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const bar = eventElement(wrapper, 1);
+
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.querySelector('[data-edge="end"]')!.dispatchEvent(touch('pointerdown'));
+        vi.advanceTimersByTime(500);
+        pointerOver(cell(wrapper, '2026-10-17'));
+        window.dispatchEvent(touch('pointermove', { clientX: 40 }));
+        window.dispatchEvent(touch('pointerup'));
+        await nextTick();
+
+        expect(drops(wrapper)).toHaveLength(0);
+        expect(wall(resizes(wrapper)[0].end)).toBe('2026-10-17');
+    });
+
+    it('selects a range after a long press on a day', async () => {
+        const wrapper = mountMonth({ selectable: true });
+        const anchor = cell(wrapper, '2026-10-15');
+
+        pointerOver(anchor);
+        anchor.dispatchEvent(touch('pointerdown'));
+        vi.advanceTimersByTime(500);
+        await nextTick();
+
+        expect(wrapper.find('[data-selected]').attributes('data-date')).toBe('2026-10-15');
+
+        pointerOver(cell(wrapper, '2026-10-17'));
+        window.dispatchEvent(touch('pointermove', { clientX: 40 }));
+        window.dispatchEvent(touch('pointerup'));
+        await nextTick();
+
+        expect(wall(selections(wrapper)[0].start)).toBe('2026-10-15');
+        expect(wall(selections(wrapper)[0].end)).toBe('2026-10-17');
+    });
+
+    it('ignores a second finger, so lifting it does not end the drag', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const bar = eventElement(wrapper, 1);
+
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(touch('pointerdown', { pointerId: 1 }));
+        vi.advanceTimersByTime(500);
+
+        pointerOver(cell(wrapper, '2026-10-20'));
+        cell(wrapper, '2026-10-20').dispatchEvent(touch('pointerdown', { pointerId: 2 }));
+        window.dispatchEvent(touch('pointermove', { pointerId: 2, clientX: 80 }));
+        window.dispatchEvent(touch('pointerup', { pointerId: 2 }));
+        await nextTick();
+
+        expect(eventElement(wrapper, 1).hasAttribute('data-dragging')).toBe(true);
+
+        pointerOver(cell(wrapper, '2026-10-16'));
+        window.dispatchEvent(touch('pointermove', { pointerId: 1, clientX: 40 }));
+        window.dispatchEvent(touch('pointerup', { pointerId: 1 }));
+        await nextTick();
+
+        expect(drops(wrapper)).toHaveLength(1);
+        expect(wall(drops(wrapper)[0].start)).toBe('2026-10-16');
+    });
+
+    it('clears the highlight when the finger lifts after a drag', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const bar = eventElement(wrapper, 1);
+
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(touch('pointerenter', { bubbles: false }));
+        bar.dispatchEvent(touch('pointerdown'));
+        vi.advanceTimersByTime(500);
+        pointerOver(cell(wrapper, '2026-10-16'));
+        window.dispatchEvent(touch('pointermove', { clientX: 40 }));
+        await nextTick();
+
+        expect(eventElement(wrapper, 1).hasAttribute('data-highlighted')).toBe(true);
+
+        window.dispatchEvent(touch('pointerup'));
+        await nextTick();
+
+        expect(eventElement(wrapper, 1).hasAttribute('data-highlighted')).toBe(false);
+    });
+
+    it('drops a pending long press when the calendar unmounts', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const bar = eventElement(wrapper, 1);
+
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(touch('pointerdown'));
+        wrapper.unmount();
+        vi.advanceTimersByTime(500);
+
+        const menu = new Event('contextmenu', { bubbles: true, cancelable: true });
+        window.dispatchEvent(menu);
+
+        expect(menu.defaultPrevented).toBe(false);
+    });
+
+    it('selects nothing from a tap', async () => {
+        const wrapper = mountMonth({ selectable: true });
+        const anchor = cell(wrapper, '2026-10-15');
+
+        pointerOver(anchor);
+        anchor.dispatchEvent(touch('pointerdown'));
+        vi.advanceTimersByTime(100);
+        window.dispatchEvent(touch('pointerup'));
+        vi.advanceTimersByTime(1000);
+        await nextTick();
+
+        expect(selections(wrapper)).toHaveLength(0);
+        expect(wrapper.find('[data-selected]').exists()).toBe(false);
+    });
+});
+
+describe('auto-scroll', () => {
+    beforeEach(() => {
+        installPointerStub();
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    /** Makes the calendar a 400px-tall scroll box over 1440px of content. */
+    function scrollBox(element: HTMLElement) {
+        element.style.overflowY = 'auto';
+        element.getBoundingClientRect = () =>
+            ({ top: 100, left: 0, right: 300, bottom: 500, width: 300, height: 400 }) as DOMRect;
+        Object.defineProperty(element, 'scrollHeight', { value: 1440 });
+        Object.defineProperty(element, 'clientHeight', { value: 400 });
+    }
+
+    it('scrolls a container while a drag nears its edge, and keeps the target current', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const box = wrapper.element as HTMLElement;
+        const bar = eventElement(wrapper, 1);
+
+        scrollBox(box);
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(pointer('pointerdown', { clientX: 150, clientY: 300 }));
+        pointerOver(cell(wrapper, '2026-10-21'));
+        window.dispatchEvent(pointer('pointermove', { clientX: 150, clientY: 495 }));
+        vi.advanceTimersByTime(100);
+
+        expect(box.scrollTop).toBeGreaterThan(0);
+
+        // Scrolling brings another day under the still pointer.
+        pointerOver(cell(wrapper, '2026-10-28'));
+        vi.advanceTimersByTime(50);
+        window.dispatchEvent(pointer('pointerup'));
+        await nextTick();
+
+        expect(wall(drops(wrapper)[0].start)).toBe('2026-10-28');
+    });
+
+    it('does not scroll on a press that has not moved', () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const box = wrapper.element as HTMLElement;
+        const bar = eventElement(wrapper, 1);
+
+        scrollBox(box);
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(pointer('pointerdown', { clientX: 150, clientY: 495 }));
+        vi.advanceTimersByTime(200);
+        window.dispatchEvent(pointer('pointerup', { clientX: 150, clientY: 495 }));
+
+        expect(box.scrollTop).toBe(0);
+    });
+
+    it('stops scrolling when the drag ends', () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const box = wrapper.element as HTMLElement;
+        const bar = eventElement(wrapper, 1);
+
+        scrollBox(box);
+        pointerOver(bar, cell(wrapper, '2026-10-14'));
+        bar.dispatchEvent(pointer('pointerdown', { clientX: 150, clientY: 300 }));
+        pointerOver(cell(wrapper, '2026-10-21'));
+        window.dispatchEvent(pointer('pointermove', { clientX: 150, clientY: 495 }));
+        vi.advanceTimersByTime(50);
+        window.dispatchEvent(pointer('pointerup'));
+
+        const stoppedAt = box.scrollTop;
+        vi.advanceTimersByTime(200);
+
+        expect(box.scrollTop).toBe(stoppedAt);
     });
 });
 

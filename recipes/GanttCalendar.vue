@@ -376,7 +376,7 @@ function columnLabel(column: GanttColumn) {
                             <GanttTrack class="relative">
                                 <GanttBar
                                     :row="row"
-                                    class="absolute top-1/2 left-[calc(var(--bar-start)/var(--axis-days)*100%)] z-10 h-(--bar-height) w-[max(calc((var(--bar-end)-var(--bar-start))/var(--axis-days)*100%),0.5rem)] -translate-y-1/2 rounded-md data-continues-after:rounded-r-none data-continues-before:rounded-l-none data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab"
+                                    class="absolute top-1/2 left-[calc(var(--bar-start)/var(--axis-days)*100%)] z-10 h-(--bar-height) w-[max(calc((var(--bar-end)-var(--bar-start))/var(--axis-days)*100%),0.5rem)] -translate-y-1/2 rounded-md data-continues-after:rounded-r-none data-continues-before:rounded-l-none data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none]"
                                 >
                                     <slot
                                         name="bar"
@@ -405,12 +405,12 @@ function columnLabel(column: GanttColumn) {
                                     <EventResizeHandle
                                         v-if="!row.continuesBefore"
                                         edge="start"
-                                        class="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize"
+                                        class="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize pointer-coarse:w-3"
                                     />
                                     <EventResizeHandle
                                         v-if="!row.continuesAfter"
                                         edge="end"
-                                        class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize"
+                                        class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize pointer-coarse:w-3"
                                     />
                                 </GanttBar>
                             </GanttTrack>

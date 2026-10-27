@@ -269,7 +269,7 @@ const skeletonColumn = ([start, length]: number[], dayCount: number) => {
                                     (candidate) => candidate.resource?.id ?? null,
                                 ),
                             }"
-                            class="absolute top-[calc(0.25rem+var(--event-lane)*1.625rem)] left-(--inset-start) z-10 h-6 w-[calc(var(--event-span)*100%+(var(--event-span)-1)*1px-var(--inset-start)-var(--inset-end))] rounded-sm [--inset-end:0.25rem] [--inset-start:0.25rem] data-continues-after:rounded-r-none data-continues-after:[--inset-end:-1px] data-continues-before:rounded-l-none data-continues-before:[--inset-start:0px] data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-past:opacity-60"
+                            class="absolute top-[calc(0.25rem+var(--event-lane)*1.625rem)] left-(--inset-start) z-10 h-6 w-[calc(var(--event-span)*100%+(var(--event-span)-1)*1px-var(--inset-start)-var(--inset-end))] rounded-sm [--inset-end:0.25rem] [--inset-start:0.25rem] data-continues-after:rounded-r-none data-continues-after:[--inset-end:-1px] data-continues-before:rounded-l-none data-continues-before:[--inset-start:0px] data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none] data-past:opacity-60"
                         >
                             <slot
                                 name="event"
@@ -287,12 +287,12 @@ const skeletonColumn = ([start, length]: number[], dayCount: number) => {
                             <EventResizeHandle
                                 v-if="!segment.continuesBefore"
                                 edge="start"
-                                class="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize"
+                                class="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize pointer-coarse:w-3"
                             />
                             <EventResizeHandle
                                 v-if="!segment.continuesAfter"
                                 edge="end"
-                                class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize"
+                                class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize pointer-coarse:w-3"
                             />
                         </EventBar>
                     </ResourceCell>
