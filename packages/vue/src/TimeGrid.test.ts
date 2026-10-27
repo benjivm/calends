@@ -1,7 +1,7 @@
 import { nextTick } from 'vue';
 import { enableAutoUnmount } from '@vue/test-utils';
 import { afterEach, describe, expect, it } from 'vitest';
-import { eventElement, mountWeek, type CalendarWrapper } from './test-harness.js';
+import { date, eventElement, mountWeek, type CalendarWrapper } from './test-harness.js';
 
 const column = (wrapper: CalendarWrapper, value: string) =>
     wrapper.get<HTMLElement>(`[data-drop="time"][data-date="${value}"]`).element;
@@ -117,5 +117,47 @@ describe('TimeGrid keyboard', () => {
 
         expect(focusedEvent()).toBe('standup');
         expect(eventElement(wrapper, 'standup').hasAttribute('data-dragging')).toBe(true);
+    });
+});
+
+describe('NowIndicator', () => {
+    const now = (value: string) => Temporal.ZonedDateTime.from(`${value}[America/Chicago]`);
+    const lines = (wrapper: CalendarWrapper) =>
+        wrapper.findAll<HTMLElement>('[data-drop="time"] > [aria-hidden="true"]');
+
+    it('renders only in today’s column, at now in minutes and as a share of the window', () => {
+        const wrapper = mountWeek({
+            now: now('2026-10-14T12:00'),
+            slotMinMinutes: 8 * 60,
+            slotMaxMinutes: 18 * 60,
+        });
+        const [line] = lines(wrapper);
+
+        expect(lines(wrapper)).toHaveLength(1);
+        expect(line.element.parentElement?.dataset.date).toBe('2026-10-14');
+        expect(line.element.style.getPropertyValue('--now')).toBe('240');
+        expect(line.element.style.getPropertyValue('--now-offset')).toBe('40%');
+    });
+
+    it('hides outside the visible hours, and follows the now prop', async () => {
+        const wrapper = mountWeek({
+            now: now('2026-10-14T07:00'),
+            slotMinMinutes: 8 * 60,
+            slotMaxMinutes: 18 * 60,
+        });
+
+        expect(lines(wrapper)).toHaveLength(0);
+
+        await wrapper.setProps({ now: now('2026-10-14T08:30') });
+        expect(lines(wrapper)[0].element.style.getPropertyValue('--now')).toBe('30');
+
+        await wrapper.setProps({ now: now('2026-10-14T19:00') });
+        expect(lines(wrapper)).toHaveLength(0);
+    });
+
+    it('renders nowhere when today is outside the week', () => {
+        const wrapper = mountWeek({ now: now('2026-10-14T12:00'), date: date('2026-10-21') });
+
+        expect(lines(wrapper)).toHaveLength(0);
     });
 });
