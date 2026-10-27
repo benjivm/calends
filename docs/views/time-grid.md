@@ -19,8 +19,14 @@ This is the **`TimeGridCalendar` recipe**. Drag an event to move it, drag its to
 change its times, or click or drag across empty hours to select a range. The red line marks the
 current time.
 
+Add it with the [shadcn-vue CLI](/guide/theming#installing):
+
+```sh
+npx shadcn-vue@latest add https://benjivm.github.io/calends/r/time-grid-calendar.json
+```
+
 ::: details The recipe's source
-<<< @/../recipes/TimeGridCalendar.vue
+<<< @/../recipes/calendar/TimeGridCalendar.vue
 :::
 
 ## Anatomy

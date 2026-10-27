@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import ResourceCalendar from '@recipes/ResourceCalendar.vue';
+import ResourceCalendar from '@recipes/calendar/ResourceCalendar.vue';
 import DemoFrame from './DemoFrame.vue';
 import DemoToggle from './DemoToggle.vue';
 import { sampleJobs, technicians, useDemoState, type DemoEvent } from './sample';

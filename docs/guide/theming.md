@@ -1,9 +1,47 @@
 # Theming the recipes
 
 The primitives are unstyled. **Recipes** are styled components built on them, like the month view
-on this site: copy one into your project and change whatever you like. They're written with
+on this site: add one to your project and change whatever you like. They're written with
 Tailwind CSS v4 and style against the [shadcn-vue](https://www.shadcn-vue.com) theme tokens, so in
 an app that already uses shadcn-vue they match your theme with no setup.
+
+## Installing
+
+The recipes are a shadcn-vue registry, so the CLI adds them to your components directory (under
+`calendar/`) and installs their dependencies:
+
+```sh
+npx shadcn-vue@latest add https://benjivm.github.io/calends/r/month-calendar.json
+```
+
+Or register the namespace once in `components.json`:
+
+```json
+{
+    "registries": {
+        "@calends": "https://benjivm.github.io/calends/r/{name}.json"
+    }
+}
+```
+
+and add recipes by name:
+
+```sh
+npx shadcn-vue@latest add @calends/month-calendar @calends/gantt-calendar
+```
+
+| Recipe               | Component          |
+| -------------------- | ------------------ |
+| `month-calendar`     | `MonthCalendar`    |
+| `time-grid-calendar` | `TimeGridCalendar` |
+| `resource-calendar`  | `ResourceCalendar` |
+| `timeline-calendar`  | `TimelineCalendar` |
+| `gantt-calendar`     | `GanttCalendar`    |
+| `calendar-toolbar`   | `CalendarToolbar`  |
+
+Every view but the Gantt chart brings `CalendarToolbar` along. The files are yours once they're added:
+the CLI asks before overwriting one you've changed. Without the CLI, copy the source from each view's
+page.
 
 ## The tokens
 

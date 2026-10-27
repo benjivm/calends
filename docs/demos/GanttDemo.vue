@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { GanttScale } from '@calends/core';
-import GanttCalendar from '@recipes/GanttCalendar.vue';
+import GanttCalendar from '@recipes/calendar/GanttCalendar.vue';
 import DemoFrame from './DemoFrame.vue';
 import DemoToggle from './DemoToggle.vue';
 import { projectLinks, sampleProjects, useDemoState } from './sample';

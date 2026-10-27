@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import TimeGridCalendar from '@recipes/TimeGridCalendar.vue';
+import TimeGridCalendar from '@recipes/calendar/TimeGridCalendar.vue';
 import DemoFrame from './DemoFrame.vue';
 import DemoToggle from './DemoToggle.vue';
 import { sampleEvents, useDemoState } from './sample';

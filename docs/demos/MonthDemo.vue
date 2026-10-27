@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import MonthCalendar from '@recipes/MonthCalendar.vue';
+import MonthCalendar from '@recipes/calendar/MonthCalendar.vue';
 import DemoFrame from './DemoFrame.vue';
 import DemoToggle from './DemoToggle.vue';
 import { sampleEvents, useDemoState } from './sample';

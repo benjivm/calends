@@ -18,8 +18,14 @@ lines between rows.
 This is the **`GanttCalendar` recipe**. Drag a bar to move it or stretch either edge, switch the
 zoom, and hover a bar to light up its links. A name that doesn't fit inside its bar goes beside it.
 
+Add it with the [shadcn-vue CLI](/guide/theming#installing):
+
+```sh
+npx shadcn-vue@latest add https://benjivm.github.io/calends/r/gantt-calendar.json
+```
+
 ::: details The recipe's source
-<<< @/../recipes/GanttCalendar.vue
+<<< @/../recipes/calendar/GanttCalendar.vue
 :::
 
 ## Rows and the axis

@@ -19,8 +19,14 @@ This is the **`TimelineCalendar` recipe**, showing 6 AM to 10 PM. Drag a job alo
 up or down to another technician, or stretch either edge. Overlapping jobs in a row stack into
 lanes, and the overnight retrofit runs off the end of the day.
 
+Add it with the [shadcn-vue CLI](/guide/theming#installing):
+
+```sh
+npx shadcn-vue@latest add https://benjivm.github.io/calends/r/timeline-calendar.json
+```
+
 ::: details The recipe's source
-<<< @/../recipes/TimelineCalendar.vue
+<<< @/../recipes/calendar/TimelineCalendar.vue
 :::
 
 ## The axis

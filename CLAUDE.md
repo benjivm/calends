@@ -34,6 +34,9 @@ about it, but in CI (`CI=true`) the install fails with `ERR_PNPM_IGNORED_BUILDS`
   those tokens (plus Tailwind's `red`/`green` for the now line and status, which mean the same in every theme), keep shadcn's exact values in `docs/.vitepress/theme/style.css`, write explicit `border-border`
   (Tailwind's preflight defaults borders to `currentColor`), and import nothing but `@calends/*`, `vue`, and
   `reka-ui`. Icons are inline SVG. Recipes are generic over their event type, like `CalendarRoot`.
+- **Recipes are a shadcn-vue registry.** They live in `recipes/calendar/` (the CLI installs them to
+  `@/components/calendar/`), and each needs an entry in `recipes/registry.json`, listing every file it imports.
+  The docs build writes it to `/calends/r/` (`docs/.vitepress/registry.ts`).
 - **The no-CSS rule is for the packages.** Recipes are styled by definition, but still with utilities, not
   `<style>` blocks.
 - **Demos go in `.calendar-demo vp-raw`** inside `<ClientOnly>` (they depend on the clock). VitePress's styles are

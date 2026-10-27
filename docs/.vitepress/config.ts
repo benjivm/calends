@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitepress';
+import { writeRegistry } from './registry';
 
 const repo = 'https://github.com/benjivm/calends';
 const base = '/calends/';
@@ -51,6 +52,8 @@ export default defineConfig({
         outline: [2, 3],
         footer: { message: 'Released under the MIT License.' },
     },
+
+    buildEnd: ({ outDir }) => writeRegistry(outDir),
 
     vite: {
         plugins: [tailwindcss()],

@@ -1,0 +1,71 @@
+{
+    "$schema": "https://shadcn-vue.com/schema/registry.json",
+    "name": "calends",
+    "homepage": "https://benjivm.github.io/calends",
+    "items": [
+        {
+            "name": "calendar-toolbar",
+            "type": "registry:component",
+            "title": "Calendar toolbar",
+            "description": "Previous, today, and next buttons with the period's title, for any Calends view.",
+            "dependencies": ["@calends/vue"],
+            "files": [
+                { "path": "recipes/calendar/CalendarToolbar.vue", "type": "registry:component" }
+            ]
+        },
+        {
+            "name": "month-calendar",
+            "type": "registry:block",
+            "title": "Month calendar",
+            "description": "A month of weeks, with multi-day bars, \"+N more\" overflow, drag, resize, and range select.",
+            "dependencies": ["@calends/core", "@calends/vue", "reka-ui"],
+            "files": [
+                { "path": "recipes/calendar/MonthCalendar.vue", "type": "registry:component" },
+                { "path": "recipes/calendar/CalendarToolbar.vue", "type": "registry:component" }
+            ]
+        },
+        {
+            "name": "time-grid-calendar",
+            "type": "registry:block",
+            "title": "Time grid calendar",
+            "description": "A week or day of hours, with an all-day row, overlap columns, and a now line.",
+            "dependencies": ["@calends/core", "@calends/vue"],
+            "files": [
+                { "path": "recipes/calendar/TimeGridCalendar.vue", "type": "registry:component" },
+                { "path": "recipes/calendar/CalendarToolbar.vue", "type": "registry:component" }
+            ]
+        },
+        {
+            "name": "resource-calendar",
+            "type": "registry:block",
+            "title": "Resource calendar",
+            "description": "One row per resource across a week or month, with free rows and double-bookings marked.",
+            "dependencies": ["@calends/core", "@calends/vue"],
+            "files": [
+                { "path": "recipes/calendar/ResourceCalendar.vue", "type": "registry:component" },
+                { "path": "recipes/calendar/CalendarToolbar.vue", "type": "registry:component" }
+            ]
+        },
+        {
+            "name": "timeline-calendar",
+            "type": "registry:block",
+            "title": "Timeline calendar",
+            "description": "Hours across a day or week, with a row per resource.",
+            "dependencies": ["@calends/core", "@calends/vue"],
+            "files": [
+                { "path": "recipes/calendar/TimelineCalendar.vue", "type": "registry:component" },
+                { "path": "recipes/calendar/CalendarToolbar.vue", "type": "registry:component" }
+            ]
+        },
+        {
+            "name": "gantt-calendar",
+            "type": "registry:block",
+            "title": "Gantt chart",
+            "description": "One row per task over a day, week, or month scale, with dependency links.",
+            "dependencies": ["@calends/core", "@calends/vue"],
+            "files": [
+                { "path": "recipes/calendar/GanttCalendar.vue", "type": "registry:component" }
+            ]
+        }
+    ]
+}

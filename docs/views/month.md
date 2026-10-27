@@ -21,8 +21,14 @@ across empty days to create an event. With a bar focused, Space picks it up and 
 The demo commits each change to local state the way your app would, so turning off `editable` stops new
 events too.
 
+Add it with the [shadcn-vue CLI](/guide/theming#installing):
+
+```sh
+npx shadcn-vue@latest add https://benjivm.github.io/calends/r/month-calendar.json
+```
+
 ::: details The recipe's source
-<<< @/../recipes/MonthCalendar.vue
+<<< @/../recipes/calendar/MonthCalendar.vue
 :::
 
 ## Anatomy

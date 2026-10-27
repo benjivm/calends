@@ -19,8 +19,14 @@ This is the **`ResourceCalendar` recipe**. Drag a job along its row to change it
 down to give it to someone else. Riley has two jobs at once today, so that cell and row are marked
 as double-booked. Avery has two jobs today too, but at different times, so she's only busy.
 
+Add it with the [shadcn-vue CLI](/guide/theming#installing):
+
+```sh
+npx shadcn-vue@latest add https://benjivm.github.io/calends/r/resource-calendar.json
+```
+
 ::: details The recipe's source
-<<< @/../recipes/ResourceCalendar.vue
+<<< @/../recipes/calendar/ResourceCalendar.vue
 :::
 
 ## Resources and events
