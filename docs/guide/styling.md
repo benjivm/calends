@@ -32,6 +32,12 @@ with `[data-highlighted] .title` in plain CSS. Cells work the same way with `gro
 **Highlighting is shared.** Hovering or focusing any piece of an event (each week of a multi-week
 bar, each day of an overnight event) sets `data-highlighted` on every piece.
 
+**Make touch targets bigger.** On touch, a long press picks up an event or starts a selection, so a
+swipe still scrolls. Handles sized for a mouse are too small for a finger: widen them with Tailwind's
+`pointer-coarse:` variant, like `w-1.5 pointer-coarse:w-3`. iOS opens a callout on a long-pressed
+link or image, which only CSS can stop, so give editable events `select-none` and
+`[-webkit-touch-callout:none]`.
+
 ## State attributes
 
 ### Events
@@ -44,7 +50,7 @@ bar, each day of an overnight event) sets `data-highlighted` on every piece.
 | `data-past`             | It ended before now (timed) or before today (all-day).                                | all                          |
 | `data-highlighted`      | The pointer or focus is on any piece of the same event.                               | all                          |
 | `data-editable`         | The calendar is `editable` and `can-edit` allows this event.                          | all                          |
-| `data-dragging`         | It's being moved or resized, by pointer or keyboard.                                  | all                          |
+| `data-dragging`         | It's being moved or resized, by pointer or keyboard. On touch, from the long press.   | all                          |
 | `data-all-day`          | It's an all-day event.                                                                | `EventBar`, `TimelineEvent`  |
 | `data-continues-before` | This piece isn't the start: it began in an earlier week, or before the visible range. | `EventBar`, `GanttBar`       |
 | `data-continues-after`  | This piece isn't the end.                                                             | `EventBar`, `GanttBar`       |

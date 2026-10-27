@@ -98,11 +98,90 @@ export interface DragState<T extends CalendarEventInput> {
 
 const DRAG_THRESHOLD = 4;
 
+const LONG_PRESS_MS = 500;
+
+/** How far a finger can wander during a long press before it counts as a scroll. */
+const LONG_PRESS_SLOP = 10;
+
+/** How close to a scroll container's edge a drag starts scrolling it, and how fast, per frame. */
+const SCROLL_EDGE = 40;
+const SCROLL_SPEED = 16;
+
 const FOCUSABLE = 'a[href], button, [tabindex]:not([tabindex="-1"])';
 
 /** A press on any of these inside a day is meant for it, not the start of a range selection. */
 const NOT_SELECTION =
     '[data-event-id], [data-calendar-control], a[href], button, input, select, textarea';
+
+/** The element's scrollable ancestors, nearest first, ending with the page. */
+function scrollContainers(element: Element | null): Element[] {
+    const page = document.scrollingElement ?? document.documentElement;
+    const containers: Element[] = [];
+
+    for (let node = element?.parentElement; node && node !== page; node = node.parentElement) {
+        const { overflowX, overflowY } = getComputedStyle(node);
+
+        if (/auto|scroll|overlay/.test(overflowX + overflowY)) {
+            containers.push(node);
+        }
+    }
+
+    return [...containers, page];
+}
+
+/** Scroll speed toward `start` (negative) or `end` near either edge, full speed past it. */
+function edgeSpeed(position: number, start: number, end: number): number {
+    const edge = Math.min(SCROLL_EDGE, (end - start) / 4);
+
+    if (position < start + edge)
+        return -SCROLL_SPEED * Math.min((start + edge - position) / edge, 1);
+    if (position > end - edge) return SCROLL_SPEED * Math.min((position - end + edge) / edge, 1);
+
+    return 0;
+}
+
+/**
+ * Scrolls each container the point is near the edge of, along the axes it's inside on the
+ * other side of. Returns whether anything moved.
+ */
+function scrollTowards(containers: Element[], x: number, y: number): boolean {
+    const page = document.scrollingElement ?? document.documentElement;
+    let scrolled = false;
+
+    for (const container of containers) {
+        const rect =
+            container === page
+                ? { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }
+                : container.getBoundingClientRect();
+        const dx = y >= rect.top && y <= rect.bottom ? edgeSpeed(x, rect.left, rect.right) : 0;
+        const dy = x >= rect.left && x <= rect.right ? edgeSpeed(y, rect.top, rect.bottom) : 0;
+        const left = clamp(
+            container.scrollLeft + dx,
+            container.scrollWidth - container.clientWidth,
+        );
+        const top = clamp(
+            container.scrollTop + dy,
+            container.scrollHeight - container.clientHeight,
+        );
+
+        if (left !== container.scrollLeft || top !== container.scrollTop) {
+            container.scrollLeft = left;
+            container.scrollTop = top;
+            scrolled = true;
+        }
+    }
+
+    return scrolled;
+}
+
+const clamp = (value: number, max: number) => Math.round(Math.min(Math.max(value, 0), max));
+
+interface PointerGesture {
+    /** The press counts: at once for a mouse or pen, after a long press for touch. */
+    begin: () => void;
+    move: (x: number, y: number) => void;
+    end: (cancelled: boolean) => void;
+}
 
 export function useInteractions<T extends CalendarEventInput>(options: InteractionOptions<T>) {
     const drag = shallowRef<DragState<T> | null>(null);
@@ -297,22 +376,131 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
         setTimeout(() => window.removeEventListener('click', swallow, { capture: true }), 0);
     }
 
-    function startPointerDrag(pointerEvent: PointerEvent, event: CalendarEvent<T>, kind: DragKind) {
-        if (pointerEvent.button !== 0 || pointerEvent.pointerType === 'touch' || !canEdit(event))
+    /** Ends the pointer gesture under way, from a pending long press to a drag. */
+    let releasePointer: (() => void) | null = null;
+
+    onScopeDispose(() => releasePointer?.());
+
+    /**
+     * Follows one pointer until it lifts, is cancelled, or Escape is pressed, ignoring any other
+     * (like a second finger). Touch begins only after a long press, since it can't tell a drag
+     * from a scroll at pointerdown: a finger that moves first scrolls the page as usual. Until
+     * it lifts, a held touch can't scroll, select text, open the context menu, or start a
+     * native drag. Once the pointer moves, nearing a scroll container's edge scrolls it.
+     */
+    function trackPointer(pointerEvent: PointerEvent, gesture: PointerGesture) {
+        const { pointerId, clientX, clientY } = pointerEvent;
+        // Touch events stay with the element they started on, even once a drag re-renders it
+        // out of the document, where they no longer reach the window.
+        const origin = pointerEvent.target as Element;
+        const containers = scrollContainers(origin);
+        const blocked = ['contextmenu', 'selectstart', 'dragstart'] as const;
+        let begun = false;
+        let moved = false;
+        let last = { x: clientX, y: clientY };
+        let frame = 0;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+
+        const blockScroll = (touch: Event) => begun && touch.cancelable && touch.preventDefault();
+        const block = (event: Event) => event.preventDefault();
+
+        const scroll = () => {
+            frame = 0;
+
+            if (!scrollTowards(containers, last.x, last.y)) return;
+
+            // The content moved under a still pointer, so what it's over has changed.
+            gesture.move(last.x, last.y);
+            frame = requestAnimationFrame(scroll);
+        };
+
+        const onMove = (move: PointerEvent) => {
+            if (move.pointerId !== pointerId) return;
+
+            const distance = Math.hypot(move.clientX - clientX, move.clientY - clientY);
+
+            last = { x: move.clientX, y: move.clientY };
+
+            if (!begun) {
+                if (distance > LONG_PRESS_SLOP) stop(true);
+
+                return;
+            }
+
+            moved ||= distance >= DRAG_THRESHOLD;
+            gesture.move(last.x, last.y);
+
+            if (moved && !frame) {
+                frame = requestAnimationFrame(scroll);
+            }
+        };
+
+        const onUp = (up: PointerEvent) => up.pointerId === pointerId && stop(false);
+        const onCancel = (cancel: PointerEvent) => cancel.pointerId === pointerId && stop(true);
+        const onEscape = (key: KeyboardEvent) => key.key === 'Escape' && stop(true);
+
+        function stop(cancelled: boolean) {
+            clearTimeout(timer);
+            cancelAnimationFrame(frame);
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+            window.removeEventListener('pointercancel', onCancel);
+            window.removeEventListener('keydown', onEscape);
+            window.removeEventListener('touchmove', blockScroll);
+            origin.removeEventListener('touchmove', blockScroll);
+            blocked.forEach((type) => window.removeEventListener(type, block, true));
+            releasePointer = null;
+
+            if (begun) gesture.end(cancelled);
+        }
+
+        function begin() {
+            begun = true;
+            gesture.begin();
+        }
+
+        releasePointer = () => stop(true);
+        window.addEventListener('pointermove', onMove);
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onCancel);
+        window.addEventListener('keydown', onEscape);
+
+        if (pointerEvent.pointerType !== 'touch') {
+            begin();
+
             return;
+        }
 
-        const origin = resolveTarget(pointerEvent.clientX, pointerEvent.clientY);
+        // Registered now, not when the press fires: a browser decides at touchstart whether
+        // the touch's moves can be cancelled at all.
+        window.addEventListener('touchmove', blockScroll, { passive: false });
+        origin.addEventListener('touchmove', blockScroll, { passive: false });
+        blocked.forEach((type) => window.addEventListener(type, block, true));
+        timer = setTimeout(begin, LONG_PRESS_MS);
+    }
 
-        if (!origin) return;
-
-        // Stops the browser's own link drag and text selection, which would cancel the pointer.
-        pointerEvent.preventDefault();
+    function startPointerDrag(pointerEvent: PointerEvent, event: CalendarEvent<T>, kind: DragKind) {
+        if (pointerEvent.button !== 0 || !canEdit(event)) return;
 
         if (kind !== 'move') {
             pointerEvent.stopPropagation();
         }
 
-        drag.value = {
+        if (releasePointer || drag.value) return;
+
+        const origin = resolveTarget(pointerEvent.clientX, pointerEvent.clientY);
+
+        if (!origin) return;
+
+        const touch = pointerEvent.pointerType === 'touch';
+
+        // Stops the browser's own link drag and text selection, which would cancel the pointer.
+        // Touch keeps its default, so a swipe that starts on an event still scrolls.
+        if (!touch) {
+            pointerEvent.preventDefault();
+        }
+
+        const pressed: DragState<T> = {
             kind,
             event,
             origin,
@@ -325,49 +513,39 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
             endDelta: {},
         };
 
-        const onMove = (move: PointerEvent) => {
-            const state = drag.value;
+        trackPointer(pointerEvent, {
+            begin() {
+                drag.value = pressed;
 
-            if (!state) return;
+                // A long press has already told the drag apart from a tap, so lift it right away.
+                if (touch) applyDrag(pressed, origin);
+            },
+            move(x, y) {
+                const state = drag.value;
 
-            const distance = Math.hypot(
-                move.clientX - state.pointer.x,
-                move.clientY - state.pointer.y,
-            );
+                if (!state) return;
 
-            if (!state.started && distance < DRAG_THRESHOLD) return;
+                const distance = Math.hypot(x - state.pointer.x, y - state.pointer.y);
 
-            const target = resolveTarget(move.clientX, move.clientY);
+                if (!state.started && distance < DRAG_THRESHOLD) return;
 
-            if (target) {
-                applyDrag(state, target);
-            }
-        };
+                const target = resolveTarget(x, y);
 
-        const finish = (cancelled: boolean) => {
-            window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('pointerup', onUp);
-            window.removeEventListener('pointercancel', onCancel);
-            window.removeEventListener('keydown', onEscape);
+                if (target) {
+                    applyDrag(state, target);
+                }
+            },
+            end(cancelled) {
+                const state = drag.value;
+                drag.value = null;
 
-            const state = drag.value;
-            drag.value = null;
+                if (state?.started) {
+                    swallowNextClick();
 
-            if (state?.started) {
-                swallowNextClick();
-
-                if (!cancelled) commit(state);
-            }
-        };
-
-        const onUp = () => finish(false);
-        const onCancel = () => finish(true);
-        const onEscape = (key: KeyboardEvent) => key.key === 'Escape' && finish(true);
-
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('pointerup', onUp);
-        window.addEventListener('pointercancel', onCancel);
-        window.addEventListener('keydown', onEscape);
+                    if (!cancelled) commit(state);
+                }
+            },
+        });
     }
 
     function startSelection(pointerEvent: PointerEvent) {
@@ -376,7 +554,8 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
         if (
             !selectable.value ||
             pointerEvent.button !== 0 ||
-            pointerEvent.pointerType === 'touch' ||
+            releasePointer ||
+            drag.value ||
             element?.closest(NOT_SELECTION)
         ) {
             return;
@@ -387,40 +566,31 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
         if (!anchor) return;
 
         // Stops text selection while dragging, which also skips the click's focus, so focus by hand.
-        pointerEvent.preventDefault();
-        element?.closest<HTMLElement>('[role="gridcell"]')?.focus();
-        selection.value = { anchor, current: anchor };
+        if (pointerEvent.pointerType !== 'touch') {
+            pointerEvent.preventDefault();
+        }
 
-        const onMove = (move: PointerEvent) => {
-            const target = resolveTarget(move.clientX, move.clientY);
+        trackPointer(pointerEvent, {
+            begin() {
+                element?.closest<HTMLElement>('[role="gridcell"]')?.focus({ preventScroll: true });
+                selection.value = { anchor, current: anchor };
+            },
+            move(x, y) {
+                const target = resolveTarget(x, y);
 
-            if (target && target.kind === anchor.kind) {
-                selection.value = { anchor, current: target };
-            }
-        };
+                if (target && target.kind === anchor.kind) {
+                    selection.value = { anchor, current: target };
+                }
+            },
+            end(cancelled) {
+                const range = selectedRange.value;
+                selection.value = null;
 
-        const finish = (cancelled: boolean) => {
-            window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('pointerup', onUp);
-            window.removeEventListener('pointercancel', onCancel);
-            window.removeEventListener('keydown', onEscape);
-
-            const range = selectedRange.value;
-            selection.value = null;
-
-            if (!cancelled && range) {
-                options.onRangeSelect?.(range.detail);
-            }
-        };
-
-        const onUp = () => finish(false);
-        const onCancel = () => finish(true);
-        const onEscape = (key: KeyboardEvent) => key.key === 'Escape' && finish(true);
-
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('pointerup', onUp);
-        window.addEventListener('pointercancel', onCancel);
-        window.addEventListener('keydown', onEscape);
+                if (!cancelled && range) {
+                    options.onRangeSelect?.(range.detail);
+                }
+            },
+        });
     }
 
     const toZoned = (date: Temporal.PlainDate, minutes: number) =>

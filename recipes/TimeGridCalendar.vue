@@ -178,7 +178,7 @@ const timeLabel = (event: CalendarEvent) =>
                         :key="segment.event.id"
                         :segment="segment"
                         :keyboard-axes="{ horizontal: 'day', vertical: 'none' }"
-                        class="absolute top-[calc(0.25rem+var(--event-lane)*1.625rem)] left-[calc(var(--event-column)/var(--day-count)*100%+0.25rem)] z-10 h-6 w-[calc(var(--event-span)/var(--day-count)*100%-0.5rem)] rounded-sm data-continues-after:rounded-r-none data-continues-before:rounded-l-none data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-past:opacity-60"
+                        class="absolute top-[calc(0.25rem+var(--event-lane)*1.625rem)] left-[calc(var(--event-column)/var(--day-count)*100%+0.25rem)] z-10 h-6 w-[calc(var(--event-span)/var(--day-count)*100%-0.5rem)] rounded-sm data-continues-after:rounded-r-none data-continues-before:rounded-l-none data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none] data-past:opacity-60"
                     >
                         <slot
                             name="all-day-event"
@@ -195,12 +195,12 @@ const timeLabel = (event: CalendarEvent) =>
                         <EventResizeHandle
                             v-if="!segment.continuesBefore"
                             edge="start"
-                            class="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize"
+                            class="absolute inset-y-0 left-0 z-10 w-1.5 cursor-ew-resize pointer-coarse:w-3"
                         />
                         <EventResizeHandle
                             v-if="!segment.continuesAfter"
                             edge="end"
-                            class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize"
+                            class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-ew-resize pointer-coarse:w-3"
                         />
                     </EventBar>
                 </div>
@@ -234,7 +234,7 @@ const timeLabel = (event: CalendarEvent) =>
                             v-for="layout in day.events"
                             :key="layout.event.id"
                             :layout="layout"
-                            class="absolute top-[calc(var(--event-start)/var(--window-minutes)*100%)] left-[calc(var(--event-column)*(100%-0.5rem)/var(--event-columns)+1px)] z-10 h-[calc((var(--event-end)-var(--event-start))/var(--window-minutes)*100%-2px)] min-h-5 w-[calc((100%-0.5rem)/var(--event-columns)-2px)] rounded-sm data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-ends-after:rounded-b-none data-past:opacity-60 data-starts-before:rounded-t-none"
+                            class="absolute top-[calc(var(--event-start)/var(--window-minutes)*100%)] left-[calc(var(--event-column)*(100%-0.5rem)/var(--event-columns)+1px)] z-10 h-[calc((var(--event-end)-var(--event-start))/var(--window-minutes)*100%-2px)] min-h-5 w-[calc((100%-0.5rem)/var(--event-columns)-2px)] rounded-sm data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none] data-ends-after:rounded-b-none data-past:opacity-60 data-starts-before:rounded-t-none"
                         >
                             <slot
                                 name="event"
@@ -264,12 +264,12 @@ const timeLabel = (event: CalendarEvent) =>
                             <EventResizeHandle
                                 v-if="!layout.startsBefore"
                                 edge="start"
-                                class="absolute inset-x-0 top-0 z-10 h-1.5 cursor-ns-resize"
+                                class="absolute inset-x-0 top-0 z-10 h-1.5 cursor-ns-resize pointer-coarse:h-2.5"
                             />
                             <EventResizeHandle
                                 v-if="!layout.endsAfter"
                                 edge="end"
-                                class="absolute inset-x-0 bottom-0 z-10 h-1.5 cursor-ns-resize"
+                                class="absolute inset-x-0 bottom-0 z-10 h-1.5 cursor-ns-resize pointer-coarse:h-2.5"
                             />
                         </TimeEvent>
 

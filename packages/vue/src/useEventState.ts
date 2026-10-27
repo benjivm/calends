@@ -51,6 +51,22 @@ export function useEventState(
 
     function onPointerdown(pointerEvent: PointerEvent) {
         calendar.startPointerDrag(pointerEvent, toValue(event), 'move');
+
+        // Touch has no hover to end, and a drag replaces the element before its pointerleave.
+        if (pointerEvent.pointerType === 'touch') {
+            const id = toValue(event).id;
+            const clear = (up: PointerEvent) => {
+                if (up.pointerId !== pointerEvent.pointerId) return;
+
+                window.removeEventListener('pointerup', clear);
+                window.removeEventListener('pointercancel', clear);
+
+                if (highlightedEventId.value === id) highlightedEventId.value = null;
+            };
+
+            window.addEventListener('pointerup', clear);
+            window.addEventListener('pointercancel', clear);
+        }
     }
 
     function onKeydown(keyboardEvent: KeyboardEvent) {
