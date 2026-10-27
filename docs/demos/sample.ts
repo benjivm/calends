@@ -9,6 +9,9 @@ export interface DemoEvent {
     end?: string;
     /** Technician ids, for the resource and timeline demos. */
     techs?: string[];
+    /** The source calendar's id, for the sources demo. */
+    calendar?: string;
+    color?: string;
 }
 
 export interface Technician {

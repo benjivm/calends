@@ -38,6 +38,7 @@ npx shadcn-vue@latest add @calends/month-calendar @calends/gantt-calendar
 | `timeline-calendar`  | `TimelineCalendar` |
 | `gantt-calendar`     | `GanttCalendar`    |
 | `calendar-toolbar`   | `CalendarToolbar`  |
+| `calendar-sources`   | `CalendarSources`  |
 
 Every view but the Gantt chart brings `CalendarToolbar` along. The files are yours once they're added:
 the CLI asks before overwriting one you've changed. Without the CLI, copy the source from each view's
@@ -59,13 +60,16 @@ Recipes use these utilities, so your Tailwind theme needs the matching colors:
 | `bg-background`                         | Outline buttons.                                          |
 | `border-border`                         | Every border.                                             |
 | `ring-ring`                             | Focus rings.                                              |
+| `chart-1` to `chart-5`                  | Only if you pass them as event colors.                    |
 
 A few colors mean the same thing in every theme, so they use Tailwind's default palette instead:
 the current-time line is `red-500`, and the resource view marks free rows green and double-bookings
 red, as the Gantt view does for conflicting dependencies.
 
 Event bars are tinted with your `primary` color, so they follow your brand. To color events by
-category, override the bar's background in the recipe's `event` slot.
+category, give each event a `color` (any CSS color, like `var(--chart-1)`), or restyle the bar in
+the recipe's `event` slot. [Multiple calendars](/guide/sources) shows both the colors and a legend
+to toggle them.
 
 ## Without shadcn-vue
 

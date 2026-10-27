@@ -3,6 +3,8 @@ import type { CalendarEventInput, CalendarResource } from '@calends/core';
 
 export interface ResourceCalendarEvent extends CalendarEventInput {
     title?: string;
+    /** Any CSS color, like `var(--chart-1)`, to tint the default bar. Defaults to `primary`. */
+    color?: string;
 }
 
 export interface ResourceCalendarResource extends CalendarResource {
@@ -279,7 +281,8 @@ const skeletonColumn = ([start, length]: number[], dayCount: number) => {
                             >
                                 <div
                                     :tabindex="editable ? 0 : undefined"
-                                    class="h-full truncate rounded-[inherit] bg-primary/10 px-1.5 text-xs leading-6 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset in-data-highlighted:bg-primary/20"
+                                    :style="{ '--event-color': sourceOf(segment.event).color }"
+                                    class="h-full truncate rounded-[inherit] bg-(--event-color)/10 px-1.5 text-xs leading-6 text-foreground outline-none [--event-color:var(--primary)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset in-data-highlighted:bg-(--event-color)/20"
                                 >
                                     {{ sourceOf(segment.event).title ?? segment.event.id }}
                                 </div>

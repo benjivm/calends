@@ -3,6 +3,8 @@ import type { CalendarEventInput } from '@calends/core';
 
 export interface TimeGridCalendarEvent extends CalendarEventInput {
     title?: string;
+    /** Any CSS color, like `var(--chart-1)`, to tint the default bar. Defaults to `primary`. */
+    color?: string;
 }
 </script>
 
@@ -187,7 +189,8 @@ const timeLabel = (event: CalendarEvent) =>
                         >
                             <div
                                 :tabindex="editable ? 0 : undefined"
-                                class="h-full truncate rounded-[inherit] border-l-3 border-l-primary bg-primary/10 px-1.5 text-xs leading-6 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset in-data-highlighted:bg-primary/20"
+                                :style="{ '--event-color': sourceOf(segment.event).color }"
+                                class="h-full truncate rounded-[inherit] border-l-3 border-l-(--event-color) bg-(--event-color)/10 px-1.5 text-xs leading-6 text-foreground outline-none [--event-color:var(--primary)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset in-data-highlighted:bg-(--event-color)/20"
                             >
                                 {{ sourceOf(segment.event).title ?? segment.event.id }}
                             </div>
@@ -244,8 +247,9 @@ const timeLabel = (event: CalendarEvent) =>
                             >
                                 <div
                                     :tabindex="editable ? 0 : undefined"
+                                    :style="{ '--event-color': sourceOf(layout.event).color }"
                                     :class="[
-                                        'flex h-full overflow-hidden rounded-[inherit] border-l-3 border-l-primary bg-primary/10 px-1.5 text-xs leading-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset in-data-highlighted:bg-primary/20',
+                                        'flex h-full overflow-hidden rounded-[inherit] border-l-3 border-l-(--event-color) bg-(--event-color)/10 px-1.5 text-xs leading-tight text-foreground outline-none [--event-color:var(--primary)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset in-data-highlighted:bg-(--event-color)/20',
                                         isShort(layout)
                                             ? 'items-center gap-1.5 py-0'
                                             : 'flex-col py-0.5',

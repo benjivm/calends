@@ -3,6 +3,8 @@ import type { CalendarEventInput } from '@calends/core';
 
 export interface GanttCalendarEvent extends CalendarEventInput {
     title?: string;
+    /** Any CSS color, like `var(--chart-1)`, to tint the default bar. Defaults to `primary`. */
+    color?: string;
 }
 </script>
 
@@ -386,9 +388,10 @@ function columnLabel(column: GanttColumn) {
                                     >
                                         <div
                                             :tabindex="editable ? 0 : undefined"
+                                            :style="{ '--event-color': sourceOf(row.event).color }"
                                             :aria-label="titleOf(row)"
                                             :class="{ 'px-2': fitsLabel(row, titleOf(row)) }"
-                                            class="flex h-full items-center truncate rounded-[inherit] bg-primary/10 text-xs font-medium text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset in-data-highlighted:bg-primary/20"
+                                            class="flex h-full items-center truncate rounded-[inherit] bg-(--event-color)/10 text-xs font-medium text-foreground outline-none [--event-color:var(--primary)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset in-data-highlighted:bg-(--event-color)/20"
                                         >
                                             <template v-if="fitsLabel(row, titleOf(row))">
                                                 {{ titleOf(row) }}
