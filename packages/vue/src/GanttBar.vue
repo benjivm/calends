@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { GanttRow } from '@calends/core';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { percent } from './percent.js';
 import { injectCalendarContext } from './useCalendar.js';
 import { useEventState } from './useEventState.js';

@@ -33,3 +33,4 @@ export { default as TimelineTrack } from './TimelineTrack.vue';
 export * from './useCalendar.js';
 export * from './useEventState.js';
 export * from './useInteractions.js';
+export type { AsTag, PrimitiveProps } from './Primitive.js';

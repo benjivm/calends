@@ -1,7 +1,7 @@
 # Calends
 
 Headless calendar for Vue: `@calends/core` (plain TS on native `Temporal`) and `@calends/vue`
-(unstyled primitives, peer deps `vue` and `reka-ui`). Two private workspace packages sit beside them:
+(unstyled primitives, peer dep `vue`). Two private workspace packages sit beside them:
 `recipes/` (styled, copy-in components built on the primitives) and `docs/` (the VitePress site, deployed
 to GitHub Pages at `benjivm.github.io/calends`).
 
@@ -54,7 +54,7 @@ about it, but in CI (`CI=true`) the install fails with `ERR_PNPM_IGNORED_BUILDS`
   (`data-today`, `data-outside`, `data-weekend`, `data-selected`, `data-highlighted`, `data-continues-before`,
   `data-dragging`, …) and layout as CSS custom properties (`--event-span`, `--event-lane`, `--day-count`, …).
   The only inline styles allowed are layout variables and the visually-hidden live region.
-- **Primitives are Reka-style:** `as-child` via reka-ui's `Primitive`, slots everywhere, `v-model:date`/`v-model:view`.
+- **Primitives are Reka-style:** `as-child` via the package's own `Primitive` (adapted from reka-ui's, so reka-ui is only a recipe dependency), slots everywhere, `v-model:date`/`v-model:view`.
   Event primitives (`EventBar`, `TimeEvent`, `TimelineEvent`, `GanttBar`) render their own wrapper instead of
   `as-child`, so `EventResizeHandle` can sit inside them.
 - **Interactions emit intent.** Drag, resize, and select emit `event-drop`, `event-resize`, and `range-select`; the

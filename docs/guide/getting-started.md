@@ -7,11 +7,11 @@ Calends is two packages:
 - **`@calends/vue`** is the headless Vue primitives built on it.
 
 ```sh
-npm install @calends/vue @calends/core reka-ui
+npm install @calends/vue @calends/core
 ```
 
-`vue` 3.5+ and `reka-ui` 2.11+ are peer dependencies. Only reka-ui's `Primitive` is used, for
-`as-child`.
+`vue` 3.5+ is the only peer dependency. Every primitive takes `as` and `as-child`, which work as
+they do in Reka UI.
 
 ## Requirements
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TimelineRow } from '@calends/core';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 
 withDefaults(defineProps<PrimitiveProps & { row: TimelineRow<any, any> }>(), { as: 'div' });
 </script>

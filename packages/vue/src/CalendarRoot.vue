@@ -11,7 +11,7 @@ import {
     type ResourceId,
     type WeekDay,
 } from '@calends/core';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { provideCalendarContext, useCalendar } from './useCalendar.js';
 import type { EventDropDetail, RangeSelectDetail } from './useInteractions.js';
 

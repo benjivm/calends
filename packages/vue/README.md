@@ -6,11 +6,10 @@ CSS. State is exposed as data attributes and layout as CSS custom properties, so
 Tailwind (`data-today:…`) or plain attribute selectors.
 
 ```sh
-npm install @calends/vue @calends/core reka-ui
+npm install @calends/vue @calends/core
 ```
 
-`vue` (3.5+) and `reka-ui` (2.11+) are peer dependencies. Only reka-ui's `Primitive` is used, for
-`as-child`.
+`vue` 3.5+ is the only peer dependency. `as` and `as-child` work as they do in Reka UI.
 
 ## Requirements
 

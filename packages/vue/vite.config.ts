@@ -7,7 +7,7 @@ export default defineConfig({
         lib: { entry: 'src/index.ts', formats: ['es'], fileName: 'index' },
         sourcemap: true,
         rolldownOptions: {
-            external: ['vue', 'reka-ui', '@calends/core'],
+            external: ['vue', '@calends/core'],
         },
     },
 });

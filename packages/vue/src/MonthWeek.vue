@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MonthWeek } from '@calends/core';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 
 withDefaults(defineProps<PrimitiveProps & { week: MonthWeek<any> }>(), { as: 'div' });
 </script>

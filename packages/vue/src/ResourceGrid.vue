@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick } from 'vue';
 import { navigate } from '@calends/core';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { injectCalendarContext } from './useCalendar.js';
 
 /** Exposes the day count as `--day-count` so the recipe can size its columns. */

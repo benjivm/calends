@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { injectCalendarContext } from './useCalendar.js';
 
 /** Exposes `--axis-days` so the recipe can size the track and place bars, columns, and today. */

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { EventSegment, ResourceId } from '@calends/core';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { useEventState } from './useEventState.js';
 import type { KeyboardAxes } from './useInteractions.js';
 

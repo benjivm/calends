@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { MonthDay } from '@calends/core';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { injectCalendarContext } from './useCalendar.js';
 
 /** Renders nothing on days where every event fits, so the recipe can place it unconditionally. */

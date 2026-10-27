@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { ResourceDay } from '@calends/core';
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { injectCalendarContext } from './useCalendar.js';
 
 const props = withDefaults(defineProps<PrimitiveProps & { day: ResourceDay }>(), { as: 'div' });

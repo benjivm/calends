@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { injectCalendarContext } from './useCalendar.js';
 
 /** A row's day axis: drops and selections are measured against its width. */

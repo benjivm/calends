@@ -96,4 +96,5 @@ Dark mode follows a `.dark` class on an ancestor, as shadcn-vue does.
 ## Dependencies
 
 Recipes import from `@calends/vue` and `reka-ui` (for the "+N more" popover), and nothing else. Icons
-are inline SVG.
+are inline SVG. shadcn-vue apps already have `reka-ui`; anywhere else, install it for the recipes.
+The primitives themselves don't need it.
