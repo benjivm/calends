@@ -10,6 +10,7 @@ import {
     type Ref,
 } from 'vue';
 import {
+    assertTemporal,
     createGantt,
     createMonthGrid,
     createResourceGrid,
@@ -45,6 +46,8 @@ export interface UseCalendarOptions<T extends CalendarEventInput> {
     fixedWeeks?: MaybeRefOrGetter<boolean>;
     maxLanes?: MaybeRefOrGetter<number | undefined>;
     today?: MaybeRefOrGetter<Temporal.PlainDate | undefined>;
+    /** Overrides the clock. Pass the same value on the server and the client to hydrate cleanly. */
+    now?: MaybeRefOrGetter<Temporal.ZonedDateTime | undefined>;
     resources?: MaybeRefOrGetter<readonly CalendarResource[] | undefined>;
     getResourceIds?: (event: T) => readonly ResourceId[] | null | undefined;
     unassigned?: MaybeRefOrGetter<boolean | undefined>;
@@ -70,19 +73,23 @@ export interface UseCalendarOptions<T extends CalendarEventInput> {
 }
 
 export function useCalendar<T extends CalendarEventInput>(options: UseCalendarOptions<T>) {
+    assertTemporal();
+
     const { date } = options;
     const view = computed(() => toValue(options.view) ?? 'month');
     const weekStartsOn = computed(() => toValue(options.weekStartsOn) ?? 7);
     const timeZone = computed(() => toValue(options.timeZone) ?? localTimeZone());
     const locale = computed(() => toValue(options.locale));
-    const now = ref(Temporal.Now.zonedDateTimeISO(timeZone.value)) as Ref<Temporal.ZonedDateTime>;
+    const clock = ref(Temporal.Now.zonedDateTimeISO(timeZone.value)) as Ref<Temporal.ZonedDateTime>;
+    const now = computed(() => toValue(options.now) ?? clock.value);
 
     // SSR never disposes component scopes, so a server-side interval would leak per render.
     if (typeof window !== 'undefined') {
-        const ticker = setInterval(
-            () => (now.value = Temporal.Now.zonedDateTimeISO(timeZone.value)),
-            60_000,
-        );
+        const ticker = setInterval(() => {
+            if (toValue(options.now) === undefined) {
+                clock.value = Temporal.Now.zonedDateTimeISO(timeZone.value);
+            }
+        }, 60_000);
 
         onScopeDispose(() => clearInterval(ticker));
     }

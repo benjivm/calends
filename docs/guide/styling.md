@@ -103,45 +103,61 @@ drag and drop finds its targets. They're stable, but they're plumbing, not styli
 
 ### Time grid
 
-Minutes are counted from the top of the visible window (`slot-min-minutes`), so with the grid's
-`--window-minutes`, `top: calc(var(--event-start) / var(--window-minutes) * 100%)` places an event.
+The `-offset` and `-length` properties are percentages of the visible window, ready for `top` and
+`height`. The minute properties count from the top of the window (`slot-min-minutes`), for anything
+the percentages don't cover.
 
-| Property            | Meaning                                      | On              |
-| ------------------- | -------------------------------------------- | --------------- |
-| `--day-count`       | Columns shown: 7 for a week, 1 for a day.    | `TimeGrid`      |
-| `--window-minutes`  | Minutes in each day's visible window.        | `TimeGrid`      |
-| `--all-day-lanes`   | Lanes in the all-day row.                    | `TimeGrid`      |
-| `--event-start`     | Where it starts, in minutes.                 | `TimeEvent`     |
-| `--event-end`       | Where it ends, in minutes.                   | `TimeEvent`     |
-| `--event-column`    | Its column among overlapping events, from 0. | `TimeEvent`     |
-| `--event-columns`   | How many columns its overlap cluster shares. | `TimeEvent`     |
-| `--now`             | The current time, in minutes.                | `NowIndicator`  |
-| `--selection-start` | The selection's start, in minutes.           | `TimeSelection` |
-| `--selection-end`   | The selection's end, in minutes.             | `TimeSelection` |
+| Property             | Meaning                                      | On              |
+| -------------------- | -------------------------------------------- | --------------- |
+| `--day-count`        | Columns shown: 7 for a week, 1 for a day.    | `TimeGrid`      |
+| `--window-minutes`   | Minutes in each day's visible window.        | `TimeGrid`      |
+| `--all-day-lanes`    | Lanes in the all-day row.                    | `TimeGrid`      |
+| `--event-offset`     | Where it starts, as a percentage.            | `TimeEvent`     |
+| `--event-length`     | How long it runs, as a percentage.           | `TimeEvent`     |
+| `--event-start`      | Where it starts, in minutes.                 | `TimeEvent`     |
+| `--event-end`        | Where it ends, in minutes.                   | `TimeEvent`     |
+| `--event-column`     | Its column among overlapping events, from 0. | `TimeEvent`     |
+| `--event-columns`    | How many columns its overlap cluster shares. | `TimeEvent`     |
+| `--now-offset`       | The current time, as a percentage.           | `NowIndicator`  |
+| `--now`              | The current time, in minutes.                | `NowIndicator`  |
+| `--selection-offset` | The selection's start, as a percentage.      | `TimeSelection` |
+| `--selection-length` | The selection's length, as a percentage.     | `TimeSelection` |
+| `--selection-start`  | The selection's start, in minutes.           | `TimeSelection` |
+| `--selection-end`    | The selection's end, in minutes.             | `TimeSelection` |
 
 ### Timeline
 
-Minutes here are along the whole axis: each day contributes one window of `--window-minutes`.
+The `-offset` and `-length` properties are percentages of the whole axis, ready for `left` and
+`width`. Minutes here are along the axis too: each day contributes one window of `--window-minutes`.
 
-| Property            | Meaning                                 | On                  |
-| ------------------- | --------------------------------------- | ------------------- |
-| `--axis-minutes`    | Length of the axis, in minutes.         | `Timeline`          |
-| `--window-minutes`  | Minutes per day on the axis.            | `Timeline`          |
-| `--slot-minutes`    | Minutes per header slot.                | `Timeline`          |
-| `--slot-count`      | Header slots across the axis.           | `Timeline`          |
-| `--row-lanes`       | Lanes the row needs (at least 1).       | `TimelineRow`       |
-| `--event-start`     | Where it starts, in axis minutes.       | `TimelineEvent`     |
-| `--event-end`       | Where it ends, in axis minutes.         | `TimelineEvent`     |
-| `--event-lane`      | Its stacking lane, from 0.              | `TimelineEvent`     |
-| `--now`             | The current time, in axis minutes.      | `TimelineNow`       |
-| `--selection-start` | The selection's start, in axis minutes. | `TimelineSelection` |
-| `--selection-end`   | The selection's end, in axis minutes.   | `TimelineSelection` |
+| Property             | Meaning                                  | On                  |
+| -------------------- | ---------------------------------------- | ------------------- |
+| `--axis-minutes`     | Length of the axis, in minutes.          | `Timeline`          |
+| `--window-minutes`   | Minutes per day on the axis.             | `Timeline`          |
+| `--slot-minutes`     | Minutes per header slot.                 | `Timeline`          |
+| `--slot-count`       | Header slots across the axis.            | `Timeline`          |
+| `--row-lanes`        | Lanes the row needs (at least 1).        | `TimelineRow`       |
+| `--event-offset`     | Where it starts, as a percentage.        | `TimelineEvent`     |
+| `--event-length`     | How long it runs, as a percentage.       | `TimelineEvent`     |
+| `--event-start`      | Where it starts, in axis minutes.        | `TimelineEvent`     |
+| `--event-end`        | Where it ends, in axis minutes.          | `TimelineEvent`     |
+| `--event-lane`       | Its stacking lane, from 0.               | `TimelineEvent`     |
+| `--now-offset`       | The current time, as a percentage.       | `TimelineNow`       |
+| `--now`              | The current time, in axis minutes.       | `TimelineNow`       |
+| `--selection-offset` | The selection's start, as a percentage.  | `TimelineSelection` |
+| `--selection-length` | The selection's length, as a percentage. | `TimelineSelection` |
+| `--selection-start`  | The selection's start, in axis minutes.  | `TimelineSelection` |
+| `--selection-end`    | The selection's end, in axis minutes.    | `TimelineSelection` |
 
 ### Gantt
 
-| Property      | Meaning                                            | On           |
-| ------------- | -------------------------------------------------- | ------------ |
-| `--axis-days` | Days on the axis.                                  | `Gantt`      |
-| `--bar-start` | Where the bar starts, in days from the axis start. | `GanttBar`   |
-| `--bar-end`   | Where it ends, in days (exclusive).                | `GanttBar`   |
-| `--today`     | Today, in days from the axis start.                | `GanttToday` |
+| Property         | Meaning                                            | On           |
+| ---------------- | -------------------------------------------------- | ------------ |
+| `--axis-days`    | Days on the axis.                                  | `Gantt`      |
+| `--bar-offset`   | Where the bar starts, as a percentage of the axis. | `GanttBar`   |
+| `--bar-length`   | How long it runs, as a percentage of the axis.     | `GanttBar`   |
+| `--bar-start`    | Where the bar starts, in days from the axis start. | `GanttBar`   |
+| `--bar-end`      | Where it ends, in days (exclusive).                | `GanttBar`   |
+| `--today-offset` | Where today starts, as a percentage of the axis.   | `GanttToday` |
+| `--today-length` | One day, as a percentage of the axis.              | `GanttToday` |
+| `--today`        | Today, in days from the axis start.                | `GanttToday` |

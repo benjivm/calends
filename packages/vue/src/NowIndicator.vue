@@ -2,9 +2,13 @@
 import { computed } from 'vue';
 import { wallMinutes, type TimeGridDay } from '@calends/core';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { percent } from './percent.js';
 import { injectCalendarContext } from './useCalendar.js';
 
-/** Renders only in today's column and inside the visible window; exposes `--now` in minutes. */
+/**
+ * Renders only in today's column and inside the visible window; exposes `--now-offset` as a
+ * percentage of the window, and `--now` in minutes.
+ */
 const props = withDefaults(defineProps<PrimitiveProps & { day: TimeGridDay<any> }>(), {
     as: 'div',
 });
@@ -26,7 +30,7 @@ const isVisible = computed(
         :as="as"
         :as-child="asChild"
         aria-hidden="true"
-        :style="{ '--now': minutes }"
+        :style="{ '--now': minutes, '--now-offset': percent(minutes, timeGrid.windowMinutes) }"
     >
         <slot />
     </Primitive>

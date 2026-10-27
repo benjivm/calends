@@ -2,10 +2,14 @@
 import { computed } from 'vue';
 import type { ResourceId, TimelineItem } from '@calends/core';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { percent } from './percent.js';
 import { injectCalendarContext } from './useCalendar.js';
 import { useEventState } from './useEventState.js';
 
-/** Exposes its placement as `--event-start`, `--event-end` (axis minutes), and `--event-lane`. */
+/**
+ * Exposes its placement as `--event-offset` and `--event-length` (percentages of the axis),
+ * `--event-start` and `--event-end` (axis minutes), and `--event-lane`.
+ */
 const props = withDefaults(
     defineProps<
         PrimitiveProps & {
@@ -49,6 +53,11 @@ const {
             '--event-start': item.startOffset,
             '--event-end': item.endOffset,
             '--event-lane': item.lane,
+            '--event-offset': percent(item.startOffset, calendar.timeline.value.axisMinutes),
+            '--event-length': percent(
+                item.endOffset - item.startOffset,
+                calendar.timeline.value.axisMinutes,
+            ),
         }"
         :data-event-id="item.event.id"
         :data-all-day="item.event.allDay ? '' : undefined"

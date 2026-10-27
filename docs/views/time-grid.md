@@ -43,14 +43,14 @@ current time.
 </CalendarRoot>
 ```
 
-| Primitive       | Renders                                     | Notes                                                                                                    |
-| --------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `TimeGrid`      | `role="group"`, labelled with the title     | Sets `--day-count`, `--window-minutes`, and `--all-day-lanes`. Slot: `grid`, `days`, `all-day`, `hours`. |
-| `TimeColumn`    | `role="group"`, labelled with the full date | One day's hours, and the drop target for timed drags.                                                    |
-| `TimeEvent`     | One day's piece of a timed event            | Sets `--event-start`, `--event-end`, `--event-column`, and `--event-columns`.                            |
-| `EventBar`      | An all-day event in the all-day row         | The same primitive as the month view, placed with `--event-column` and `--event-span`.                   |
-| `TimeSelection` | Only in the day being selected              | Sets `--selection-start` and `--selection-end`.                                                          |
-| `NowIndicator`  | Only in today's column, inside the window   | Sets `--now`.                                                                                            |
+| Primitive       | Renders                                     | Notes                                                                                                             |
+| --------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `TimeGrid`      | `role="group"`, labelled with the title     | Sets `--day-count`, `--window-minutes`, and `--all-day-lanes`. Slot: `grid`, `days`, `all-day`, `hours`.          |
+| `TimeColumn`    | `role="group"`, labelled with the full date | One day's hours, and the drop target for timed drags.                                                             |
+| `TimeEvent`     | One day's piece of a timed event            | Sets `--event-offset`, `--event-length`, `--event-start`, `--event-end`, `--event-column`, and `--event-columns`. |
+| `EventBar`      | An all-day event in the all-day row         | The same primitive as the month view, placed with `--event-column` and `--event-span`.                            |
+| `TimeSelection` | Only in the day being selected              | Sets `--selection-offset`, `--selection-length`, `--selection-start`, and `--selection-end`.                      |
+| `NowIndicator`  | Only in today's column, inside the window   | Sets `--now-offset` and `--now`.                                                                                  |
 
 `view` picks the period: `week` shows seven columns from `week-starts-on`, and `day` shows one. The
 `hours` slot prop lists each whole hour in the window, as minutes from midnight, for the gutter
@@ -58,13 +58,16 @@ labels.
 
 ## Placing events
 
-Every minute value is counted from the top of the visible window, so with the grid's
-`--window-minutes` an event's position is a percentage:
+`--event-offset` and `--event-length` are percentages of the visible window, so they place an event
+as they are:
 
 ```css
-top: calc(var(--event-start) / var(--window-minutes) * 100%);
-height: calc((var(--event-end) - var(--event-start)) / var(--window-minutes) * 100%);
+top: var(--event-offset);
+height: var(--event-length);
 ```
+
+The minute values behind them (`--event-start` and `--event-end`) count from the top of the window,
+against the grid's `--window-minutes`.
 
 - **Overlaps:** events that overlap, directly or through a chain, form a cluster. Each takes the
   first free column in its cluster (`--event-column`), and the whole cluster shares

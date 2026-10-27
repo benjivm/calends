@@ -91,3 +91,12 @@ export function isWeekend(date: Temporal.PlainDate): boolean {
 export function localTimeZone(): string {
     return Temporal.Now.timeZoneId();
 }
+
+/** Throws a readable error where `Temporal` is missing, instead of a bare `ReferenceError` deep inside a layout. */
+export function assertTemporal(): void {
+    if (typeof Temporal === 'undefined') {
+        throw new Error(
+            'Calends needs Temporal. Load a polyfill before the calendar runs: https://benjivm.github.io/calends/guide/getting-started#requirements',
+        );
+    }
+}

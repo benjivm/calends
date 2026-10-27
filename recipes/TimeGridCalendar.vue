@@ -234,7 +234,7 @@ const timeLabel = (event: CalendarEvent) =>
                             v-for="layout in day.events"
                             :key="layout.event.id"
                             :layout="layout"
-                            class="absolute top-[calc(var(--event-start)/var(--window-minutes)*100%)] left-[calc(var(--event-column)*(100%-0.5rem)/var(--event-columns)+1px)] z-10 h-[calc((var(--event-end)-var(--event-start))/var(--window-minutes)*100%-2px)] min-h-5 w-[calc((100%-0.5rem)/var(--event-columns)-2px)] rounded-sm data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none] data-ends-after:rounded-b-none data-past:opacity-60 data-starts-before:rounded-t-none"
+                            class="absolute top-(--event-offset) left-[calc(var(--event-column)*(100%-0.5rem)/var(--event-columns)+1px)] z-10 h-[calc(var(--event-length)-2px)] min-h-5 w-[calc((100%-0.5rem)/var(--event-columns)-2px)] rounded-sm data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none] data-ends-after:rounded-b-none data-past:opacity-60 data-starts-before:rounded-t-none"
                         >
                             <slot
                                 name="event"
@@ -275,12 +275,12 @@ const timeLabel = (event: CalendarEvent) =>
 
                         <TimeSelection
                             :day="day"
-                            class="pointer-events-none absolute inset-x-1 top-[calc(var(--selection-start)/var(--window-minutes)*100%)] z-5 h-[calc((var(--selection-end)-var(--selection-start))/var(--window-minutes)*100%)] rounded-sm bg-primary/15 ring-1 ring-primary/40 ring-inset"
+                            class="pointer-events-none absolute inset-x-1 top-(--selection-offset) z-5 h-(--selection-length) rounded-sm bg-primary/15 ring-1 ring-primary/40 ring-inset"
                         />
 
                         <NowIndicator
                             :day="day"
-                            class="pointer-events-none absolute inset-x-0 top-[calc(var(--now)/var(--window-minutes)*100%)] z-20 h-0.5 bg-red-500 before:absolute before:-top-[3px] before:-left-1 before:size-2 before:rounded-full before:bg-red-500"
+                            class="pointer-events-none absolute inset-x-0 top-(--now-offset) z-20 h-0.5 bg-red-500 before:absolute before:-top-[3px] before:-left-1 before:size-2 before:rounded-full before:bg-red-500"
                         />
                     </TimeColumn>
                 </div>

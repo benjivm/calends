@@ -283,7 +283,7 @@ const timeLabel = (event: CalendarEvent) =>
                                 :key="item.event.id"
                                 :item="item"
                                 :resource-id="resources ? (row.resource?.id ?? null) : undefined"
-                                class="absolute top-[calc(0.25rem+var(--event-lane)*1.625rem)] left-[calc(var(--event-start)/var(--axis-minutes)*100%+1px)] z-10 h-6 w-[max(calc((var(--event-end)-var(--event-start))/var(--axis-minutes)*100%-2px),0.75rem)] rounded-sm data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none] data-ends-after:rounded-r-none data-past:opacity-60 data-starts-before:rounded-l-none"
+                                class="absolute top-[calc(0.25rem+var(--event-lane)*1.625rem)] left-[calc(var(--event-offset)+1px)] z-10 h-6 w-[max(calc(var(--event-length)-2px),0.75rem)] rounded-sm data-dragging:pointer-events-none data-dragging:z-30 data-dragging:shadow-lg data-editable:cursor-grab data-editable:select-none data-editable:[-webkit-touch-callout:none] data-ends-after:rounded-r-none data-past:opacity-60 data-starts-before:rounded-l-none"
                             >
                                 <slot
                                     name="event"
@@ -320,7 +320,7 @@ const timeLabel = (event: CalendarEvent) =>
 
                             <TimelineSelection
                                 :row="row"
-                                class="pointer-events-none absolute inset-y-1 left-[calc(var(--selection-start)/var(--axis-minutes)*100%)] z-5 w-[calc((var(--selection-end)-var(--selection-start))/var(--axis-minutes)*100%)] rounded-sm bg-primary/15 ring-1 ring-primary/40 ring-inset"
+                                class="pointer-events-none absolute inset-y-1 left-(--selection-offset) z-5 w-(--selection-length) rounded-sm bg-primary/15 ring-1 ring-primary/40 ring-inset"
                             />
                         </TimelineTrack>
                     </TimelineRow>
@@ -329,7 +329,7 @@ const timeLabel = (event: CalendarEvent) =>
                         class="pointer-events-none absolute inset-y-0 right-0 left-(--label-width)"
                     >
                         <TimelineNow
-                            class="absolute inset-y-0 left-[calc(var(--now)/var(--axis-minutes)*100%)] z-15 w-0.5 bg-red-500"
+                            class="absolute inset-y-0 left-(--now-offset) z-15 w-0.5 bg-red-500"
                         />
                     </div>
                 </div>

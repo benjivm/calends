@@ -1,13 +1,15 @@
 <script setup lang="ts" generic="T extends CalendarEventInput">
 import { watch } from 'vue';
-import type {
-    CalendarEventInput,
-    CalendarResource,
-    CalendarView,
-    GanttLinkInput,
-    GanttScale,
-    ResourceId,
-    WeekDay,
+import {
+    assertTemporal,
+    localTimeZone,
+    type CalendarEventInput,
+    type CalendarResource,
+    type CalendarView,
+    type GanttLinkInput,
+    type GanttScale,
+    type ResourceId,
+    type WeekDay,
 } from '@calends/core';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
 import { provideCalendarContext, useCalendar } from './useCalendar.js';
@@ -24,6 +26,8 @@ const props = withDefaults(
             fixedWeeks?: boolean;
             maxLanes?: number;
             today?: Temporal.PlainDate;
+            /** Overrides the clock, for server rendering. Today follows it unless `today` is set. */
+            now?: Temporal.ZonedDateTime;
             resources?: readonly CalendarResource[];
             getResourceIds?: (event: T) => readonly ResourceId[] | null | undefined;
             /** Adds a row for events whose resources aren't in `resources`. */
@@ -48,8 +52,24 @@ const emit = defineEmits<{
     'range-select': [detail: RangeSelectDetail];
 }>();
 
+// Vue hands a prop's default factory the other props, so the starting date can follow `today`.
+// It runs before setup, so it checks for Temporal itself.
 const date = defineModel<Temporal.PlainDate>('date', {
-    default: () => Temporal.Now.plainDateISO(),
+    default: (rawProps: Record<string, unknown>) => {
+        assertTemporal();
+
+        const { today, now, timeZone } = rawProps as {
+            today?: Temporal.PlainDate;
+            now?: Temporal.ZonedDateTime;
+            timeZone?: string;
+        };
+
+        return (
+            today ??
+            now?.withTimeZone(timeZone ?? localTimeZone()).toPlainDate() ??
+            Temporal.Now.plainDateISO(timeZone ?? localTimeZone())
+        );
+    },
 });
 
 const calendar = useCalendar<T>({
@@ -62,6 +82,7 @@ const calendar = useCalendar<T>({
     fixedWeeks: () => props.fixedWeeks,
     maxLanes: () => props.maxLanes,
     today: () => props.today,
+    now: () => props.now,
     resources: () => props.resources,
     getResourceIds: (event) => props.getResourceIds?.(event),
     unassigned: () => props.unassigned,

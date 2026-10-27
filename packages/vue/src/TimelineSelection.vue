@@ -2,10 +2,12 @@
 import { computed } from 'vue';
 import { daysBetween, type TimelineRow } from '@calends/core';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { percent } from './percent.js';
 import { injectCalendarContext } from './useCalendar.js';
 
 /**
  * The range being dragged out along a row's hours. Renders only in that row; exposes
+ * `--selection-offset` and `--selection-length` as percentages of the axis, and
  * `--selection-start` and `--selection-end` in axis minutes.
  */
 const props = withDefaults(defineProps<PrimitiveProps & { row: TimelineRow<any, any> }>(), {
@@ -37,7 +39,12 @@ const range = computed(() => {
         :as="as"
         :as-child="asChild"
         aria-hidden="true"
-        :style="{ '--selection-start': range.start, '--selection-end': range.end }"
+        :style="{
+            '--selection-start': range.start,
+            '--selection-end': range.end,
+            '--selection-offset': percent(range.start, timeline.axisMinutes),
+            '--selection-length': percent(range.end - range.start, timeline.axisMinutes),
+        }"
     >
         <slot />
     </Primitive>

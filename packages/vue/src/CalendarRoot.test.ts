@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import CalendarHeading from './CalendarHeading.vue';
 import CalendarNav from './CalendarNav.vue';
 import CalendarRoot from './CalendarRoot.vue';
-import { date, TODAY } from './test-harness.js';
+import { date, eventElement, mountWeek, TODAY } from './test-harness.js';
 
 const navigation = (props: Record<string, unknown> = {}) => {
     const wrapper = mount(CalendarRoot, {
@@ -76,6 +76,67 @@ describe('CalendarRoot', () => {
         await wrapper.setProps({ date: date('2027-02-03') });
 
         expect(heading(wrapper)).toBe('February 2027');
+    });
+
+    it('starts on today when no date is bound', () => {
+        const wrapper = navigation({ date: undefined, today: date('2027-02-03') });
+
+        expect(heading(wrapper)).toBe('February 2027');
+    });
+
+    it('takes today from now, in the calendar time zone', () => {
+        const wrapper = navigation({
+            date: undefined,
+            today: undefined,
+            timeZone: 'America/New_York',
+            now: Temporal.ZonedDateTime.from('2027-05-31T23:30[America/Chicago]'),
+        });
+
+        expect(heading(wrapper)).toBe('June 2027');
+    });
+
+    it('marks timed events past against now, so server and client agree', () => {
+        const wrapper = mountWeek({
+            today: undefined,
+            now: Temporal.ZonedDateTime.from('2026-10-14T12:00[America/Chicago]'),
+            events: [
+                {
+                    id: 'morning',
+                    title: 'Morning',
+                    start: '2026-10-14T09:00',
+                    end: '2026-10-14T10:00',
+                },
+                {
+                    id: 'afternoon',
+                    title: 'Afternoon',
+                    start: '2026-10-14T13:00',
+                    end: '2026-10-14T14:00',
+                },
+            ],
+        });
+
+        expect(eventElement(wrapper, 'morning').hasAttribute('data-past')).toBe(true);
+        expect(eventElement(wrapper, 'afternoon').hasAttribute('data-past')).toBe(false);
+    });
+
+    it('places timed events as percentages of the window, beside the minutes', () => {
+        const wrapper = mountWeek({
+            slotMinMinutes: 8 * 60,
+            slotMaxMinutes: 18 * 60,
+            events: [
+                {
+                    id: 'review',
+                    title: 'Review',
+                    start: '2026-10-14T09:00',
+                    end: '2026-10-14T10:30',
+                },
+            ],
+        });
+        const { style } = eventElement(wrapper, 'review');
+
+        expect(style.getPropertyValue('--event-offset')).toBe('10%');
+        expect(style.getPropertyValue('--event-length')).toBe('15%');
+        expect(style.getPropertyValue('--event-start')).toBe('60');
     });
 
     it('renders nav controls as buttons that never submit a form', () => {

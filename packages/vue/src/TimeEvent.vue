@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import type { TimedEventLayout } from '@calends/core';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { percent } from './percent.js';
+import { injectCalendarContext } from './useCalendar.js';
 import { useEventState } from './useEventState.js';
 
 /**
- * Exposes its placement as CSS variables in minutes and columns; with the grid's
- * `--window-minutes`, the recipe turns those into `top`, `height`, `left`, and `width`.
+ * Exposes its placement as CSS variables: `--event-offset` and `--event-length` as percentages
+ * of the window for `top` and `height`, the same in minutes, and its column.
  */
 const props = withDefaults(defineProps<PrimitiveProps & { layout: TimedEventLayout<any> }>(), {
     as: 'div',
 });
+
+const { timeGrid } = injectCalendarContext('TimeEvent');
 
 const {
     isHighlighted,
@@ -32,6 +36,11 @@ const {
         :style="{
             '--event-start': layout.startMinutes,
             '--event-end': layout.endMinutes,
+            '--event-offset': percent(layout.startMinutes, timeGrid.windowMinutes),
+            '--event-length': percent(
+                layout.endMinutes - layout.startMinutes,
+                timeGrid.windowMinutes,
+            ),
             '--event-column': layout.column,
             '--event-columns': layout.columnCount,
         }"

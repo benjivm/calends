@@ -69,24 +69,27 @@ one bar, jumping straight from one day's evening to the next morning.
 </Timeline>
 ```
 
-| Primitive           | Renders                                   | Notes                                                                                                              |
-| ------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `Timeline`          | `role="group"`, labelled with the title   | Sets `--axis-minutes`, `--window-minutes`, `--slot-minutes`, and `--slot-count`. Slot: `timeline`, `days`, `rows`. |
-| `TimelineRow`       | `role="group"`                            | Sets `--row-lanes`, and `data-idle` or `data-unassigned`.                                                          |
-| `TimelineTrack`     | The row's time axis                       | Drops and selections are measured against its width, so give it the full axis.                                     |
-| `TimelineEvent`     | One event on the axis                     | Sets `--event-start`, `--event-end` (in axis minutes), and `--event-lane`.                                         |
-| `TimelineSelection` | Only in the row being selected            | Sets `--selection-start` and `--selection-end`.                                                                    |
-| `TimelineNow`       | Only while now is inside a visible window | Sets `--now`, in axis minutes.                                                                                     |
+| Primitive           | Renders                                   | Notes                                                                                                                           |
+| ------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `Timeline`          | `role="group"`, labelled with the title   | Sets `--axis-minutes`, `--window-minutes`, `--slot-minutes`, and `--slot-count`. Slot: `timeline`, `days`, `rows`.              |
+| `TimelineRow`       | `role="group"`                            | Sets `--row-lanes`, and `data-idle` or `data-unassigned`.                                                                       |
+| `TimelineTrack`     | The row's time axis                       | Drops and selections are measured against its width, so give it the full axis.                                                  |
+| `TimelineEvent`     | One event on the axis                     | Sets `--event-offset` and `--event-length` (percentages), `--event-start` and `--event-end` (axis minutes), and `--event-lane`. |
+| `TimelineSelection` | Only in the row being selected            | Sets `--selection-offset`, `--selection-length`, `--selection-start`, and `--selection-end`.                                    |
+| `TimelineNow`       | Only while now is inside a visible window | Sets `--now-offset`, and `--now` in axis minutes.                                                                               |
 
 Each entry in `days` has an `offset` (where its window starts on the axis) and `slots` (the header
 slot starts, as minutes from midnight), for drawing the header.
 
-Axis minutes turn into position like this:
+`--event-offset` and `--event-length` are percentages of the axis, so they place an event as they
+are:
 
 ```css
-left: calc(var(--event-start) / var(--axis-minutes) * 100%);
-width: calc((var(--event-end) - var(--event-start)) / var(--axis-minutes) * 100%);
+left: var(--event-offset);
+width: var(--event-length);
 ```
+
+The axis-minute values behind them work against `--axis-minutes` for anything else.
 
 ## Keyboard
 

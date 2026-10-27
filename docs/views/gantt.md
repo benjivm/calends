@@ -78,14 +78,14 @@ core exports `routeGanttLink`, `roundedPath`, and `ganttLinkArrow`.
 </Gantt>
 ```
 
-| Primitive    | Renders                        | Notes                                                                                   |
-| ------------ | ------------------------------ | --------------------------------------------------------------------------------------- |
-| `Gantt`      | `role="group"`                 | Sets `--axis-days` and `data-scale`. Slot: `gantt`, `rows`, `columns`, `groups`.        |
-| `GanttRow`   | `role="group"`                 | One task's row. `GanttLinks` finds rows through it.                                     |
-| `GanttTrack` | The row's day axis             | Drops are measured against its width, so give it the full axis.                         |
-| `GanttBar`   | The task's bar                 | Sets `--bar-start` and `--bar-end`, in days from the axis start (the end is exclusive). |
-| `GanttLinks` | An `<svg>`                     | Props `gap`, `radius`, and `arrow-size`, in pixels.                                     |
-| `GanttToday` | Only when today is on the axis | Sets `--today`, in days from the axis start.                                            |
+| Primitive    | Renders                        | Notes                                                                                                                                              |
+| ------------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Gantt`      | `role="group"`                 | Sets `--axis-days` and `data-scale`. Slot: `gantt`, `rows`, `columns`, `groups`.                                                                   |
+| `GanttRow`   | `role="group"`                 | One task's row. `GanttLinks` finds rows through it.                                                                                                |
+| `GanttTrack` | The row's day axis             | Drops are measured against its width, so give it the full axis.                                                                                    |
+| `GanttBar`   | The task's bar                 | Sets `--bar-offset` and `--bar-length` (percentages of the axis), and `--bar-start` and `--bar-end` in days from its start (the end is exclusive). |
+| `GanttLinks` | An `<svg>`                     | Props `gap`, `radius`, and `arrow-size`, in pixels.                                                                                                |
+| `GanttToday` | Only when today is on the axis | Sets `--today-offset` and `--today-length` (percentages of the axis), and `--today` in days from its start.                                        |
 
 Each column and group has `offset` and `days` (clipped to the axis), and day columns have
 `isToday` and `isWeekend`.

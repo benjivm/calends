@@ -2,9 +2,13 @@
 import { computed } from 'vue';
 import { wallMinutes } from '@calends/core';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { percent } from './percent.js';
 import { injectCalendarContext } from './useCalendar.js';
 
-/** Renders only while now falls inside a visible day's window; exposes `--now` in axis minutes. */
+/**
+ * Renders only while now falls inside a visible day's window; exposes `--now-offset` as a
+ * percentage of the axis, and `--now` in axis minutes.
+ */
 withDefaults(defineProps<PrimitiveProps>(), { as: 'div' });
 
 const { now, timeZone, timeline } = injectCalendarContext('TimelineNow');
@@ -28,7 +32,7 @@ const offset = computed(() => {
         :as="as"
         :as-child="asChild"
         aria-hidden="true"
-        :style="{ '--now': offset }"
+        :style="{ '--now': offset, '--now-offset': percent(offset, timeline.axisMinutes) }"
     >
         <slot />
     </Primitive>

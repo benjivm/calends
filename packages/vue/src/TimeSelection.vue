@@ -2,11 +2,13 @@
 import { computed } from 'vue';
 import type { TimeGridDay } from '@calends/core';
 import { Primitive, type PrimitiveProps } from 'reka-ui';
+import { percent } from './percent.js';
 import { injectCalendarContext } from './useCalendar.js';
 
 /**
- * The range being dragged out in one day's hours. Renders only in that day's column;
- * exposes `--selection-start` and `--selection-end` in minutes from the top of the window.
+ * The range being dragged out in one day's hours. Renders only in that day's column; exposes
+ * `--selection-offset` and `--selection-length` as percentages of the window, and
+ * `--selection-start` and `--selection-end` in minutes from its top.
  */
 const props = withDefaults(defineProps<PrimitiveProps & { day: TimeGridDay<any> }>(), {
     as: 'div',
@@ -31,7 +33,12 @@ const range = computed(() => {
         :as="as"
         :as-child="asChild"
         aria-hidden="true"
-        :style="{ '--selection-start': range.start, '--selection-end': range.end }"
+        :style="{
+            '--selection-start': range.start,
+            '--selection-end': range.end,
+            '--selection-offset': percent(range.start, timeGrid.windowMinutes),
+            '--selection-length': percent(range.end - range.start, timeGrid.windowMinutes),
+        }"
     >
         <slot />
     </Primitive>
