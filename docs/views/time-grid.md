@@ -43,14 +43,14 @@ current time.
 </CalendarRoot>
 ```
 
-| Primitive       | Renders                                     | Notes                                                                                                             |
-| --------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `TimeGrid`      | `role="group"`, labelled with the title     | Sets `--day-count`, `--window-minutes`, and `--all-day-lanes`. Slot: `grid`, `days`, `all-day`, `hours`.          |
-| `TimeColumn`    | `role="group"`, labelled with the full date | One day's hours, and the drop target for timed drags.                                                             |
-| `TimeEvent`     | One day's piece of a timed event            | Sets `--event-offset`, `--event-length`, `--event-start`, `--event-end`, `--event-column`, and `--event-columns`. |
-| `EventBar`      | An all-day event in the all-day row         | The same primitive as the month view, placed with `--event-column` and `--event-span`.                            |
-| `TimeSelection` | Only in the day being selected              | Sets `--selection-offset`, `--selection-length`, `--selection-start`, and `--selection-end`.                      |
-| `NowIndicator`  | Only in today's column, inside the window   | Sets `--now-offset` and `--now`.                                                                                  |
+| Primitive       | Renders                                                         | Notes                                                                                                             |
+| --------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `TimeGrid`      | `role="group"`, labelled with the title                         | Sets `--day-count`, `--window-minutes`, and `--all-day-lanes`. Slot: `grid`, `days`, `all-day`, `hours`.          |
+| `TimeColumn`    | `role="group"`, labelled with the full date and its event count | One day's hours, and the drop target for timed drags. Takes roving focus, with `data-focused`.                    |
+| `TimeEvent`     | One day's piece of a timed event                                | Sets `--event-offset`, `--event-length`, `--event-start`, `--event-end`, `--event-column`, and `--event-columns`. |
+| `EventBar`      | An all-day event in the all-day row                             | The same primitive as the month view, placed with `--event-column` and `--event-span`.                            |
+| `TimeSelection` | Only in the day being selected                                  | Sets `--selection-offset`, `--selection-length`, `--selection-start`, and `--selection-end`.                      |
+| `NowIndicator`  | Only in today's column, inside the window                       | Sets `--now-offset` and `--now`.                                                                                  |
 
 `view` picks the period: `week` shows seven columns from `week-starts-on`, and `day` shows one. The
 `hours` slot prop lists each whole hour in the window, as minutes from midnight, for the gutter
@@ -85,8 +85,20 @@ which is what lets all-day bars be dragged along it.
 
 ## Keyboard
 
-The time grid has no cell-by-cell navigation yet: Tab moves between events. With `editable`, a
-focused event can be moved without a pointer:
+Tab reaches one day column, the focused day. From there:
+
+| Keys              | Does                                                       |
+| ----------------- | ---------------------------------------------------------- |
+| Left / Right      | Moves to the previous or next day, paging past the period. |
+| Home / End        | Moves to the first or last day shown.                      |
+| PageUp / PageDown | Moves a period back or forward.                            |
+| Down / Up         | Enters the day's first or last event.                      |
+
+From a focused event, Down and Up step through that day's events (Up from the first goes back to
+the day), and Left and Right move to the previous or next day. Keys pressed elsewhere inside an
+event, like in an input, are left alone. The all-day row's events are still reached with Tab.
+
+With `editable`, a focused event can also be moved without a pointer:
 
 | Keys           | Does                                                 |
 | -------------- | ---------------------------------------------------- |

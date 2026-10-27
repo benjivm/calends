@@ -22,6 +22,7 @@ import {
     type EventTimes,
     type ResourceId,
 } from '@calends/core';
+import { focusTarget } from './focus.js';
 
 /** What sits under the pointer: a day cell, a point in a day's hours, or a point on a timeline. */
 export interface DropTarget {
@@ -106,8 +107,6 @@ const LONG_PRESS_SLOP = 10;
 /** How close to a scroll container's edge a drag starts scrolling it, and how fast, per frame. */
 const SCROLL_EDGE = 40;
 const SCROLL_SPEED = 16;
-
-const FOCUSABLE = 'a[href], button, [tabindex]:not([tabindex="-1"])';
 
 /** A press on any of these inside a day is meant for it, not the start of a range selection. */
 const NOT_SELECTION =
@@ -682,14 +681,9 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
     async function refocus(event: CalendarEvent<T>) {
         await nextTick();
 
-        const element = document.querySelector<HTMLElement>(
-            `[data-event-id="${CSS.escape(String(event.id))}"]`,
-        );
-        const target = element?.matches(FOCUSABLE)
-            ? element
-            : element?.querySelector<HTMLElement>(FOCUSABLE);
-
-        target?.focus();
+        focusTarget(
+            document.querySelector(`[data-event-id="${CSS.escape(String(event.id))}"]`),
+        )?.focus();
     }
 
     function keyboardPreview(state: DragState<T>): DragState<T> {

@@ -228,7 +228,7 @@ const timeLabel = (event: CalendarEvent) =>
                         v-for="day in days"
                         :key="day.date.toString()"
                         :day="day"
-                        class="relative border-r border-border bg-[linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[100%_var(--hour-height)] last:border-r-0 data-today:bg-primary/4 data-weekend:bg-muted/50"
+                        class="relative border-r border-border bg-[linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[100%_var(--hour-height)] outline-none last:border-r-0 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset data-today:bg-primary/4 data-weekend:bg-muted/50"
                     >
                         <TimeEvent
                             v-for="layout in day.events"

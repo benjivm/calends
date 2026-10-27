@@ -8,9 +8,16 @@ const props = withDefaults(defineProps<PrimitiveProps & { day: TimeGridDay<any> 
     as: 'div',
 });
 
-const { locale } = injectCalendarContext('TimeColumn');
+const calendar = injectCalendarContext('TimeColumn');
 
-const label = computed(() => props.day.date.toLocaleString(locale.value, { dateStyle: 'full' }));
+const isFocused = computed(() => props.day.date.equals(calendar.focusedDate.value));
+
+const label = computed(() => {
+    const date = props.day.date.toLocaleString(calendar.locale.value, { dateStyle: 'full' });
+    const count = props.day.events.length;
+
+    return count ? `${date}, ${count} ${count === 1 ? 'event' : 'events'}` : date;
+});
 </script>
 
 <template>
@@ -18,11 +25,15 @@ const label = computed(() => props.day.date.toLocaleString(locale.value, { dateS
         :as="as"
         :as-child="asChild"
         role="group"
+        :tabindex="isFocused ? 0 : -1"
         :aria-label="label"
+        :aria-current="day.isToday ? 'date' : undefined"
         :data-date="day.date.toString()"
         :data-today="day.isToday ? '' : undefined"
         :data-weekend="day.isWeekend ? '' : undefined"
+        :data-focused="isFocused ? '' : undefined"
         data-drop="time"
+        @focus="calendar.focusedDate.value = day.date"
     >
         <slot
             :day="day"
