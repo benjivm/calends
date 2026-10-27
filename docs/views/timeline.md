@@ -105,6 +105,8 @@ and Escape puts it back.
 
 ## Interactions
 
+This covers what's particular to the view. [Interactions](/guide/interactions) covers the rest.
+
 Drags snap to `snap-minutes`. As in the resource view, a drop in another row adds `resourceId` and
 `previousResourceId` to `event-drop`. A selection can cross days in the week view, and
 `range-select` reports zoned `start` and `end` with the row's `resourceId`.

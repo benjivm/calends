@@ -106,6 +106,8 @@ Each move is announced through `CalendarRoot`'s live region.
 
 ## Interactions
 
+This covers what's particular to the view. [Interactions](/guide/interactions) covers the rest.
+
 | Event          | Detail                                                                          |
 | -------------- | ------------------------------------------------------------------------------- |
 | `event-drop`   | `event` (your object), `start`, `end`, `previousStart`, `previousEnd`, `allDay` |

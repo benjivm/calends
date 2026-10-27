@@ -194,37 +194,8 @@ ends, and give each instance its own `id`.
 | `as` / `as-child`  |                                         | `'div'`            | The rendered element, as in Reka UI.                                                                              |
 
 It emits `event-drop`, `event-resize`, and `range-select`. The calendar never changes `events`:
-your app applies the change, then passes the updated events back in.
-
-On touch, both start with a long press (half a second), so a swipe across the calendar still scrolls
-the page. While dragging or selecting, bringing the pointer near the edge of a scroll container (the
-time grid's hours, a wide timeline, or the page itself) scrolls it.
-
-`selectable` and `editable` are independent. `range-select` only reports the days or times that were
-picked, which suits read-only uses like opening a booking form or filtering a report. If your app turns
-a selection into a new event, that's an edit, so check `editable` (or your own permissions) first.
-The detail's `start` and `end` are valid event times as they are:
-
-```ts
-import type { RangeSelectDetail } from '@calends/vue';
-
-function createEvent({ start, end, allDay }: RangeSelectDetail) {
-    if (!canEdit.value) return;
-
-    events.value = [
-        ...events.value,
-        { id: crypto.randomUUID(), title: 'New event', start, end, allDay },
-    ];
-}
-```
-
-```html
-<CalendarRoot
-    :events="events"
-    selectable
-    @range-select="createEvent"
-></CalendarRoot>
-```
+your app applies the change, then passes the updated events back in. See
+[Interactions](/guide/interactions).
 
 ## Server rendering
 

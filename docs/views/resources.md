@@ -106,6 +106,8 @@ to the previous or next row, Shift with Left or Right changes its end, and Space
 
 ## Interactions
 
+This covers what's particular to the view. [Interactions](/guide/interactions) covers the rest.
+
 When a drop lands in another row, `event-drop` also carries `resourceId` and `previousResourceId`
 (either can be `null` for the unassigned row). Only the row it left changes: an event that belongs to
 several resources keeps the others, so your app should swap `previousResourceId` for `resourceId`

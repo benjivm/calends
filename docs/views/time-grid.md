@@ -117,6 +117,8 @@ With `editable`, a focused event can also be moved without a pointer:
 
 ## Interactions
 
+This covers what's particular to the view. [Interactions](/guide/interactions) covers the rest.
+
 Timed drags and selections snap to `snap-minutes` (15 by default). A timed event's `start` and
 `end` in `event-drop` and `event-resize` are `Temporal.ZonedDateTime` in the calendar's time zone,
 moved by wall-clock time.

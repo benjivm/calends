@@ -32,6 +32,7 @@ export default defineConfig({
                 items: [
                     { text: 'Getting started', link: '/guide/getting-started' },
                     { text: 'Styling', link: '/guide/styling' },
+                    { text: 'Interactions', link: '/guide/interactions' },
                     { text: 'Multiple calendars', link: '/guide/sources' },
                     { text: 'Theming the recipes', link: '/guide/theming' },
                 ],
