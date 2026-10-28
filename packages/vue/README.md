@@ -132,8 +132,11 @@ Space drops it, and Escape cancels. Each move is announced in a live region.
 
 ## Server rendering
 
-By default, `today` and the current time come from the rendering machine's clock and time zone, so
-a server and a browser can disagree. Pass `time-zone` and `today` to `CalendarRoot` so they match.
+By default, the current time comes from the rendering machine's clock and time zone, so a server
+and a browser can disagree about today, which events are past, and where the now line sits. Pass
+`time-zone` and a `now` the server and the client share to `CalendarRoot`, or render the calendar on
+the client only. `today` and the starting `date` follow `now` unless you set them. See
+[Server rendering](https://benjivm.github.io/calends/guide/getting-started#server-rendering).
 
 ## License
 
