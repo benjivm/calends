@@ -1,5 +1,12 @@
 # @calends/vue
 
+## 0.4.1
+
+### Patch Changes
+
+- da7c23a: README: the server rendering section now says to pass `now` (not just `today`), so past events and the now line hydrate cleanly.
+- @calends/core@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes
