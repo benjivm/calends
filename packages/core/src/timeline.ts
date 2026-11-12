@@ -1,7 +1,7 @@
 import { daysBetween, isWeekend } from './dates.js';
 import { compareEventStarts, type CalendarEvent, type CalendarEventInput } from './events.js';
 import type { CalendarResource, ResourceId } from './resources.js';
-import { wallMinutes } from './timegrid.js';
+import { wallEndMinutes, wallMinutes } from './timegrid.js';
 
 const DAY_MINUTES = 24 * 60;
 
@@ -81,6 +81,16 @@ export function createTimeline<T extends CalendarEventInput, R extends CalendarR
     slotMinutes = 60,
     today = Temporal.Now.plainDateISO(),
 }: TimelineOptions<T, R>): Timeline<T, R> {
+    if (!(slotMinutes > 0)) {
+        throw new RangeError(`slotMinutes (${slotMinutes}) must be greater than 0`);
+    }
+
+    if (slotMaxMinutes <= slotMinMinutes) {
+        throw new RangeError(
+            `slotMaxMinutes (${slotMaxMinutes}) must be greater than slotMinMinutes (${slotMinMinutes})`,
+        );
+    }
+
     const windowMinutes = slotMaxMinutes - slotMinMinutes;
     const dayCount = daysBetween(start, end) + 1;
 
@@ -204,7 +214,9 @@ function place<T extends CalendarEventInput>(
         const end = event.end as Temporal.ZonedDateTime;
         const startWall = wallMinutes(start);
         // An end at midnight belongs to the previous day's window, at its far edge.
-        const endWall = end.toPlainDate().equals(event.endDate) ? wallMinutes(end) : DAY_MINUTES;
+        const endWall = end.toPlainDate().equals(event.endDate)
+            ? wallEndMinutes(start, end)
+            : DAY_MINUTES;
 
         startOffset =
             startDay < 0 ? 0 : startDay * windowMinutes + clamp(startWall) - slotMinMinutes;
