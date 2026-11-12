@@ -78,6 +78,8 @@ export interface InteractionOptions<T extends CalendarEventInput> {
     onEventDrop?: (detail: EventDropDetail<T>) => void;
     onEventResize?: (detail: EventDropDetail<T>) => void;
     onRangeSelect?: (detail: RangeSelectDetail) => void;
+    /** Limits drop targets and refocusing to this element, so calendars on one page stay apart. */
+    root?: MaybeRefOrGetter<HTMLElement | null | undefined>;
 }
 
 type DragKind = 'move' | 'resize-start' | 'resize-end';
@@ -210,13 +212,15 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
 
     /** Finds the drop target under a point, from the data attributes the primitives render. */
     function resolveTarget(x: number, y: number): DropTarget | null {
+        const root = toValue(options.root);
+
         for (const element of document.elementsFromPoint(x, y)) {
             // A bar's DOM parent is its start-day cell, not the day under the pointer, so look past events.
             if ((element as HTMLElement).closest('[data-event-id]')) continue;
 
             const host = (element as HTMLElement).closest<HTMLElement>('[data-drop]');
 
-            if (!host) continue;
+            if (!host || (root && !root.contains(host))) continue;
 
             const kind = host.dataset.drop as DropTarget['kind'];
             const resourceId = resourceFromAttribute(host.dataset.resourceId);
@@ -682,7 +686,9 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
         await nextTick();
 
         focusTarget(
-            document.querySelector(`[data-event-id="${CSS.escape(String(event.id))}"]`),
+            (toValue(options.root) ?? document).querySelector(
+                `[data-event-id="${CSS.escape(String(event.id))}"]`,
+            ),
         )?.focus();
     }
 

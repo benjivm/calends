@@ -70,6 +70,11 @@ export interface UseCalendarOptions<T extends CalendarEventInput> {
     onEventDrop?: (detail: EventDropDetail<T>) => void;
     onEventResize?: (detail: EventDropDetail<T>) => void;
     onRangeSelect?: (detail: RangeSelectDetail) => void;
+    /**
+     * The calendar's element. Drops and keyboard refocusing stay inside it; without it they
+     * search the whole document, so a second calendar on the page can catch them.
+     */
+    root?: MaybeRefOrGetter<HTMLElement | null | undefined>;
 }
 
 export function useCalendar<T extends CalendarEventInput>(options: UseCalendarOptions<T>) {
@@ -124,6 +129,7 @@ export function useCalendar<T extends CalendarEventInput>(options: UseCalendarOp
         onEventDrop: options.onEventDrop,
         onEventResize: options.onEventResize,
         onRangeSelect: options.onRangeSelect,
+        root: options.root,
     });
 
     const resources = computed(() => toValue(options.resources));

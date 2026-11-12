@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends CalendarEventInput">
-import { watch } from 'vue';
+import { useTemplateRef, watch } from 'vue';
 import {
     assertTemporal,
     localTimeZone,
@@ -72,6 +72,14 @@ const date = defineModel<Temporal.PlainDate>('date', {
     },
 });
 
+// With `as-child`, `$el` is the child element rather than a wrapper.
+const rootComponent = useTemplateRef<{ $el: unknown }>('root');
+const rootElement = () => {
+    const element = rootComponent.value?.$el;
+
+    return element instanceof HTMLElement ? element : null;
+};
+
 const calendar = useCalendar<T>({
     date,
     events: () => props.events,
@@ -98,6 +106,7 @@ const calendar = useCalendar<T>({
     onEventDrop: (detail) => emit('event-drop', detail),
     onEventResize: (detail) => emit('event-resize', detail),
     onRangeSelect: (detail) => emit('range-select', detail),
+    root: rootElement,
 });
 
 watch(date, (value) => {
@@ -127,6 +136,7 @@ const visuallyHidden = {
 
 <template>
     <Primitive
+        ref="root"
         :as="as"
         :as-child="asChild"
         :data-view="calendar.view.value"

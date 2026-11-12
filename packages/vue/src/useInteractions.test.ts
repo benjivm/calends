@@ -724,3 +724,39 @@ describe('range select', () => {
         expect(selections(wrapper)).toHaveLength(0);
     });
 });
+
+describe('two calendars on one page', () => {
+    beforeEach(installPointerStub);
+
+    it("drops nothing when an event is dragged over the other calendar's days", async () => {
+        const a = mountMonth({ events: allDay, editable: true });
+        const b = mountMonth({ events: [], editable: true });
+        const bar = eventElement(a, 1);
+
+        pointerOver(bar, cell(a, '2026-10-14'));
+        bar.dispatchEvent(pointer('pointerdown', { clientX: 0, clientY: 0 }));
+        pointerOver(cell(b, '2026-10-16'));
+        window.dispatchEvent(pointer('pointermove', { clientX: 40, clientY: 0 }));
+        await nextTick();
+
+        expect(startDayOf(a, 1)).toBe('2026-10-14');
+
+        window.dispatchEvent(pointer('pointerup'));
+        await nextTick();
+
+        expect(drops(a)).toHaveLength(0);
+        expect(drops(b)).toHaveLength(0);
+    });
+
+    it('keeps focus in its own calendar when the other shows the same event', async () => {
+        // Mounted first, so its copy of the event comes first in the document.
+        const other = mountMonth({ events: allDay, editable: true });
+        const wrapper = mountMonth({ events: allDay, editable: true });
+
+        await pickUp(wrapper, 1);
+        await pressOnWindow('ArrowRight');
+
+        expect(document.activeElement?.closest('[data-event-id]')).toBe(eventElement(wrapper, 1));
+        expect(other.element.contains(document.activeElement)).toBe(false);
+    });
+});
