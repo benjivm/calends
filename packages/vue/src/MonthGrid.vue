@@ -9,7 +9,7 @@ withDefaults(defineProps<PrimitiveProps>(), { as: 'div' });
 const calendar = injectCalendarContext('MonthGrid');
 
 function targetFor(event: KeyboardEvent, from: Temporal.PlainDate): Temporal.PlainDate | null {
-    const weekStartsOn = calendar.grid.value.weekdays[0].dayOfWeek as 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    const weekStartsOn = calendar.weekStartsOn.value;
 
     switch (event.key) {
         case 'ArrowLeft':

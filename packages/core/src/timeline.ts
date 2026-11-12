@@ -1,9 +1,7 @@
 import { daysBetween, isWeekend } from './dates.js';
 import { compareEventStarts, type CalendarEvent, type CalendarEventInput } from './events.js';
+import { DAY_MINUTES, groupByResource, wallEndMinutes, wallMinutes } from './internal.js';
 import type { CalendarResource, ResourceId } from './resources.js';
-import { wallEndMinutes, wallMinutes } from './timegrid.js';
-
-const DAY_MINUTES = 24 * 60;
 
 export interface TimelineOptions<
     T extends CalendarEventInput = CalendarEventInput,
@@ -137,34 +135,24 @@ export function createTimeline<T extends CalendarEventInput, R extends CalendarR
         return { resource, items: laidOut, laneCount: laneEnds.length };
     };
 
-    if (!resources) {
-        return {
-            start,
-            end,
-            days,
-            rows: [rowFor(null, placed)],
-            axisMinutes: dayCount * windowMinutes,
-            windowMinutes,
-            slotMinutes,
-            slotMinMinutes,
-        };
-    }
+    const rows: TimelineRow<T, R>[] = [];
 
-    const known = new Set(resources.map((resource) => resource.id));
-    const idsFor = (item: Omit<TimelineItem<T>, 'lane'>) =>
-        (getResourceIds(item.event.source) ?? []).filter((id) => known.has(id));
+    if (resources) {
+        const byResource = groupByResource(placed, resources, (item) =>
+            getResourceIds(item.event.source),
+        );
 
-    const rows = resources.map((resource) =>
-        rowFor(
-            resource,
-            placed.filter((item) => idsFor(item).includes(resource.id)),
-        ),
-    );
+        for (const resource of resources) {
+            rows.push(rowFor(resource, byResource.get(resource.id) ?? []));
+        }
 
-    const orphans = placed.filter((item) => idsFor(item).length === 0);
+        const orphans = byResource.get(null);
 
-    if (unassigned && orphans.length) {
-        rows.push(rowFor(null, orphans));
+        if (unassigned && orphans) {
+            rows.push(rowFor(null, orphans));
+        }
+    } else {
+        rows.push(rowFor(null, placed));
     }
 
     return {

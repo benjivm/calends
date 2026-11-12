@@ -1,8 +1,9 @@
 import { daysBetween, isWeekend } from './dates.js';
 import { compareEventStarts, type CalendarEvent, type CalendarEventInput } from './events.js';
+import { DAY_MINUTES, wallEndMinutes, wallMinutes } from './internal.js';
 import { packLanes, sliceEvents, type EventSegment } from './month.js';
 
-const DAY_MINUTES = 24 * 60;
+export { wallMinutes };
 
 export interface TimeGridOptions<T extends CalendarEventInput = CalendarEventInput> {
     /** First and last day shown, inclusive: one day for a day view, seven for a week. */
@@ -104,29 +105,6 @@ export function createTimeGrid<T extends CalendarEventInput>({
         windowMinutes: slotMaxMinutes - slotMinMinutes,
         slotMinMinutes,
     };
-}
-
-/** Minutes past midnight on the wall clock, so a daylight-saving day still draws 24 hours. */
-export function wallMinutes(time: Temporal.ZonedDateTime | Temporal.PlainTime): number {
-    return time.hour * 60 + time.minute;
-}
-
-/**
- * The end's wall-clock minutes. An event that starts and ends on the same day but across the
- * fall-back hour (01:45 EDT to 01:15 EST) would end at or before its start, so it runs for its real
- * duration from its start instead, up to midnight.
- */
-export function wallEndMinutes(start: Temporal.ZonedDateTime, end: Temporal.ZonedDateTime): number {
-    const endWall = wallMinutes(end);
-    const startWall = wallMinutes(start);
-
-    if (endWall > startWall || !start.toPlainDate().equals(end.toPlainDate())) {
-        return endWall;
-    }
-
-    const duration = Math.round((end.epochMilliseconds - start.epochMilliseconds) / 60_000);
-
-    return Math.min(startWall + duration, DAY_MINUTES);
 }
 
 function pieceOnDay<T extends CalendarEventInput>(

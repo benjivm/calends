@@ -1,4 +1,5 @@
 import { isDateOnly, toPlainDate, toZonedDateTime, type DateInput } from './dates.js';
+import { lastCoveredDay } from './internal.js';
 
 export interface CalendarEventInput {
     id: string | number;
@@ -66,20 +67,6 @@ export function normalizeEvents<T extends CalendarEventInput>(
     options: NormalizeOptions,
 ): CalendarEvent<T>[] {
     return inputs.map((input) => normalizeEvent(input, options));
-}
-
-/** An event that ends exactly at midnight doesn't occupy the day that midnight starts. */
-function lastCoveredDay(
-    start: Temporal.ZonedDateTime,
-    end: Temporal.ZonedDateTime,
-): Temporal.PlainDate {
-    const endsAtMidnight = end.equals(end.startOfDay());
-
-    if (endsAtMidnight && Temporal.ZonedDateTime.compare(end, start) > 0) {
-        return end.toPlainDate().subtract({ days: 1 });
-    }
-
-    return end.toPlainDate();
 }
 
 /** All-day events sort before timed ones that start the same day. */

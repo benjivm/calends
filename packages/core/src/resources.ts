@@ -1,5 +1,6 @@
 import { daysBetween, isWeekend } from './dates.js';
 import { compareEventStarts, type CalendarEvent, type CalendarEventInput } from './events.js';
+import { groupByResource } from './internal.js';
 import { packLanes, sliceEvents, type EventSegment } from './month.js';
 
 export type ResourceId = string | number;
@@ -85,18 +86,9 @@ export function createResourceGrid<T extends CalendarEventInput, R extends Calen
         return { date, column, isToday: date.equals(today), isWeekend: isWeekend(date) };
     });
 
-    const known = new Set(resources.map((resource) => resource.id));
-    const byResource = new Map<ResourceId | null, CalendarEvent<T>[]>();
-    const sorted = [...events].sort(compareEventStarts);
-
-    for (const event of sorted) {
-        const ids = (getResourceIds(event.source) ?? []).filter((id) => known.has(id));
-        const keys: (ResourceId | null)[] = ids.length ? [...new Set(ids)] : [null];
-
-        for (const key of keys) {
-            byResource.set(key, [...(byResource.get(key) ?? []), event]);
-        }
-    }
+    const byResource = groupByResource([...events].sort(compareEventStarts), resources, (event) =>
+        getResourceIds(event.source),
+    );
 
     const rowFor = (resource: R | null): ResourceRow<T, R> => {
         const rowEvents = byResource.get(resource?.id ?? null) ?? [];

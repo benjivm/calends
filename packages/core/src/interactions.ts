@@ -1,4 +1,5 @@
 import type { CalendarEvent, CalendarEventInput } from './events.js';
+import { lastCoveredDay } from './internal.js';
 
 /** How far a drag moved an event or one of its edges. */
 export interface EventDelta {
@@ -112,18 +113,13 @@ export function withTimes<T extends CalendarEventInput>(
 
     const zonedStart = start as Temporal.ZonedDateTime;
     const zonedEnd = end as Temporal.ZonedDateTime;
-    const endsAtMidnight =
-        zonedEnd.equals(zonedEnd.startOfDay()) &&
-        Temporal.ZonedDateTime.compare(zonedEnd, zonedStart) > 0;
 
     return {
         ...event,
         start,
         end,
         startDate: zonedStart.toPlainDate(),
-        endDate: endsAtMidnight
-            ? zonedEnd.toPlainDate().subtract({ days: 1 })
-            : zonedEnd.toPlainDate(),
+        endDate: lastCoveredDay(zonedStart, zonedEnd),
     };
 }
 

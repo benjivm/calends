@@ -91,13 +91,23 @@ export function useCalendar<T extends CalendarEventInput>(options: UseCalendarOp
 
     // SSR never disposes component scopes, so a server-side interval would leak per render.
     if (typeof window !== 'undefined') {
-        const ticker = setInterval(() => {
+        const tick = () => {
             if (toValue(options.now) === undefined) {
                 clock.value = Temporal.Now.zonedDateTimeISO(timeZone.value);
             }
-        }, 60_000);
+        };
+        let ticker: ReturnType<typeof setInterval> | undefined;
+        // Ticks on the minute, so the now line and `data-past` change when the clock does.
+        const untilNextMinute = 60_000 - (Temporal.Now.instant().epochMilliseconds % 60_000);
+        const aligner = setTimeout(() => {
+            tick();
+            ticker = setInterval(tick, 60_000);
+        }, untilNextMinute);
 
-        onScopeDispose(() => clearInterval(ticker));
+        onScopeDispose(() => {
+            clearTimeout(aligner);
+            clearInterval(ticker);
+        });
     }
 
     const today = computed(

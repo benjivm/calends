@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { isWeekend } from '@calends/core';
 import { Primitive, type PrimitiveProps } from './Primitive.js';
 import { injectCalendarContext } from './useCalendar.js';
 
@@ -19,7 +20,7 @@ const longLabel = computed(() => props.date.toLocaleString(locale.value, { weekd
         :as-child="asChild"
         role="columnheader"
         :aria-label="longLabel"
-        :data-weekend="date.dayOfWeek >= 6 ? '' : undefined"
+        :data-weekend="isWeekend(date) ? '' : undefined"
     >
         <slot
             :label="label"
