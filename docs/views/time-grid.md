@@ -56,7 +56,7 @@ npx shadcn-vue@latest add https://benjivm.github.io/calends/r/time-grid-calendar
 | `TimeEvent`     | One day's piece of a timed event                                | Sets `--event-offset`, `--event-length`, `--event-start`, `--event-end`, `--event-column`, and `--event-columns`. |
 | `EventBar`      | An all-day event in the all-day row                             | The same primitive as the month view, placed with `--event-column` and `--event-span`.                            |
 | `TimeSelection` | Only in the day being selected                                  | Sets `--selection-offset`, `--selection-length`, `--selection-start`, and `--selection-end`.                      |
-| `NowIndicator`  | Only in today's column, inside the window                       | Sets `--now-offset` and `--now`.                                                                                  |
+| `NowIndicator`  | Only in the column for `now`'s date, inside the window          | Sets `--now-offset` and `--now`.                                                                                  |
 
 `view` picks the period: `week` shows seven columns from `week-starts-on`, and `day` shows one. The
 `hours` slot prop lists each whole hour in the window, as minutes from midnight, for the gutter

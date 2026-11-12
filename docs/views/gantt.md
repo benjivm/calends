@@ -58,7 +58,8 @@ const links = [
 - **A related link** has no direction. It's drawn from whichever row starts first, and the recipe
   dashes it with no arrow.
 - **A `label`** is text drawn on the line, such as a link type from your tracker ("blocks").
-- Links whose `from` or `to` aren't in `events` are dropped.
+- `from` and `to` match event ids as strings, so `1` and `'1'` are the same event. Links whose `from` or
+  `to` aren't in `events` are dropped.
 
 `GanttLinks` is an SVG overlay that measures the rendered bars, so it follows zoom, row height, and
 drag previews without any geometry of yours. A line leaves through the predecessor's top or bottom

@@ -131,21 +131,19 @@ are wall-clock times already in it. A timed event that ends exactly at midnight 
 the next day.
 
 Calends doesn't expand recurring events. Pass the instances you want shown, for the range in view.
-The month grid pads its weeks with days from the months either side, so pad the range by a week:
+The month grid pads its weeks with days from the months either side, and `visibleMonthRange` covers
+them (give it the same `week-starts-on` and `fixed-weeks` as the calendar). `CalendarRoot`'s slot has
+the same range as `visible-range`, for whichever view is showing.
 
 ```ts
 import { computed } from 'vue';
-import { periodRange } from '@calends/core';
+import { visibleMonthRange } from '@calends/core';
 
 const events = computed(() => {
-    const { start, end } = periodRange(date.value, 'month');
+    const { start, end } = visibleMonthRange(date.value);
     const standups = [];
 
-    for (
-        let day = start.subtract({ days: 6 });
-        Temporal.PlainDate.compare(day, end.add({ days: 6 })) <= 0;
-        day = day.add({ days: 1 })
-    ) {
+    for (let day = start; Temporal.PlainDate.compare(day, end) <= 0; day = day.add({ days: 1 })) {
         if (day.dayOfWeek === 1) {
             const at = day.toPlainDateTime('09:00');
 

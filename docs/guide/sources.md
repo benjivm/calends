@@ -73,20 +73,18 @@ event.source.color }"`, and style with it.
 ## Loading by range
 
 To fetch only what's in view, watch the period and load each calendar for it. The month grid pads
-its weeks with days from the months either side, so pad the range by a week:
+its weeks with days from the months either side, and `visibleMonthRange` covers them:
 
 ```ts
 import { watch } from 'vue';
-import { periodRange } from '@calends/core';
+import { visibleMonthRange } from '@calends/core';
 
 const loading = ref(false);
 
 watch(
     date,
     async (value) => {
-        const { start, end } = periodRange(value, 'month');
-        const from = start.subtract({ days: 6 });
-        const to = end.add({ days: 6 });
+        const { start: from, end: to } = visibleMonthRange(value);
 
         loading.value = true;
         const results = await Promise.all(
