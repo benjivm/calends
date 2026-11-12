@@ -120,6 +120,7 @@ export function useCalendar<T extends CalendarEventInput>(options: UseCalendarOp
         timeZone,
         locale,
         rangeStart: computed(() => range.value.start),
+        rangeEnd: computed(() => range.value.end),
         slotMinMinutes: options.slotMinMinutes,
         slotMaxMinutes: options.slotMaxMinutes,
         editable: options.editable,
@@ -129,6 +130,7 @@ export function useCalendar<T extends CalendarEventInput>(options: UseCalendarOp
         onEventDrop: options.onEventDrop,
         onEventResize: options.onEventResize,
         onRangeSelect: options.onRangeSelect,
+        onLeaveRange: (value) => focusDate(value),
         root: options.root,
     });
 

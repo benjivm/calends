@@ -7,8 +7,10 @@ import {
     eventElement,
     installPointerStub,
     layOutMinutes,
+    mountGantt,
     mountMonth,
     mountResources,
+    mountTimeline,
     mountWeek,
     pointer,
     pointerOver,
@@ -103,6 +105,33 @@ describe('keyboard moves', () => {
         expect(resizes(wrapper)).toHaveLength(1);
         expect(wall(resizes(wrapper)[0].start)).toBe('2026-10-14');
         expect(wall(resizes(wrapper)[0].end)).toBe('2026-10-16');
+    });
+
+    it('reports a move that also stretched as a drop, with the new end', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+
+        await pickUp(wrapper, 1);
+        await pressOnWindow('ArrowRight');
+        await pressOnWindow('ArrowRight', { shiftKey: true });
+        await pressOnWindow(' ');
+
+        expect(resizes(wrapper)).toHaveLength(0);
+        expect(drops(wrapper)).toHaveLength(1);
+        expect(wall(drops(wrapper)[0].start)).toBe('2026-10-15');
+        expect(wall(drops(wrapper)[0].end)).toBe('2026-10-16');
+    });
+
+    it('reports a change of row that also stretched as a drop', async () => {
+        const wrapper = mountResources({ events: assigned, editable: true });
+
+        await pickUp(wrapper, 1);
+        await pressOnWindow('ArrowDown');
+        await pressOnWindow('ArrowRight', { shiftKey: true });
+        await pressOnWindow(' ');
+
+        expect(resizes(wrapper)).toHaveLength(0);
+        expect(drops(wrapper)[0]).toMatchObject({ resourceId: 'bo', previousResourceId: 'ana' });
+        expect(wall(drops(wrapper)[0].end)).toBe('2026-10-15');
     });
 
     it('puts the event back on Escape and reports nothing', async () => {
@@ -835,5 +864,78 @@ describe('while an event is held', () => {
 
         await pressOnWindow(' ');
         expect(drops(wrapper)).toHaveLength(0);
+    });
+});
+
+describe('moving a held event out of view', () => {
+    const dates = (wrapper: CalendarWrapper) =>
+        (wrapper.emitted('update:date') ?? []).map(([value]) => String(value));
+
+    it('pages the week along with it and keeps focus on it', async () => {
+        const wrapper = mountWeek({
+            events: [
+                {
+                    id: 1,
+                    title: 'Review',
+                    start: '2026-10-17T09:00:00',
+                    end: '2026-10-17T10:00:00',
+                },
+            ],
+            editable: true,
+        });
+
+        await pickUp(wrapper, 1);
+        await pressOnWindow('ArrowRight');
+
+        expect(dates(wrapper)).toEqual(['2026-10-18']);
+        expect(startDayOf(wrapper, 1)).toBe('2026-10-18');
+        expect(document.activeElement?.closest('[data-event-id]')).toBe(eventElement(wrapper, 1));
+
+        await pressOnWindow(' ');
+        expect(wall(drops(wrapper)[0].start)).toBe('2026-10-18T09:00:00');
+    });
+
+    it("steps a timeline event past the visible hours into the next day's", async () => {
+        const wrapper = mountTimeline({
+            events: [
+                { id: 1, title: 'Close', start: '2026-10-14T17:00:00', end: '2026-10-14T18:00:00' },
+            ],
+            editable: true,
+            snapMinutes: 30,
+            slotMinMinutes: 8 * 60,
+            slotMaxMinutes: 18 * 60,
+        });
+
+        await pickUp(wrapper, 1);
+        await pressOnWindow('ArrowRight');
+        expect(dates(wrapper)).toEqual([]);
+
+        await pressOnWindow('ArrowRight');
+        expect(dates(wrapper)).toEqual(['2026-10-15']);
+        expect(announcement(wrapper)).toBe('Thu, Oct 15, 8:00 AM to Thu, Oct 15, 9:00 AM');
+        expect(document.activeElement?.closest('[data-event-id]')).toBe(eventElement(wrapper, 1));
+
+        await pressOnWindow('ArrowLeft');
+        expect(dates(wrapper)).toEqual(['2026-10-15', '2026-10-14']);
+        expect(announcement(wrapper)).toBe('Wed, Oct 14, 5:30 PM to Wed, Oct 14, 6:30 PM');
+
+        await pressOnWindow('ArrowRight');
+        await pressOnWindow(' ');
+        expect(wall(drops(wrapper)[0].start)).toBe('2026-10-15T08:00:00');
+        expect(wall(drops(wrapper)[0].end)).toBe('2026-10-15T09:00:00');
+    });
+
+    it('leaves the date alone in a Gantt, whose axis fits its tasks', async () => {
+        const wrapper = mountGantt({
+            events: [{ id: 1, title: 'Launch', start: '2026-10-31' }],
+            editable: true,
+        });
+
+        await pickUp(wrapper, 1);
+        await pressOnWindow('ArrowRight');
+        await pressOnWindow(' ');
+
+        expect(dates(wrapper)).toEqual([]);
+        expect(wall(drops(wrapper)[0].start)).toBe('2026-11-01');
     });
 });

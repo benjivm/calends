@@ -171,7 +171,7 @@ ends, and give each instance its own `id`.
 | ------------------ | --------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | `v-model:date`     | `Temporal.PlainDate`                    | today              | Any day in the period shown.                                                                                      |
 | `events`           | `readonly T[]`                          | `[]`               | See [Events](#events).                                                                                            |
-| `view`             | `'month' \| 'week' \| 'day'`            | `'month'`          | The period navigation pages by.                                                                                   |
+| `view`             | `'month' \| 'week' \| 'day'`            | `'month'`          | The period navigation pages by. A month's last day pages to the next month's last day, so Jan 31 doesn't drift.   |
 | `week-starts-on`   | `1`–`7` (ISO: 1 is Monday, 7 is Sunday) | `7`                |                                                                                                                   |
 | `time-zone`        | IANA zone string                        | the runtime's zone | Where timed events are placed.                                                                                    |
 | `locale`           | BCP 47 string                           | the runtime's      | For titles, weekday names, and labels.                                                                            |

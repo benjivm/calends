@@ -6,6 +6,7 @@ export interface MonthGridOptions<T extends CalendarEventInput = CalendarEventIn
     date: Temporal.PlainDate;
     events?: readonly CalendarEvent<T>[];
     weekStartsOn?: WeekDay;
+    /** Defaults to today in the system time zone; pass it for any other zone. */
     today?: Temporal.PlainDate;
     /** Always render six weeks so the grid height doesn't change between months. */
     fixedWeeks?: boolean;

@@ -12,6 +12,7 @@ export interface TimeGridOptions<T extends CalendarEventInput = CalendarEventInp
     /** Wall-clock window shown each day, in minutes from midnight. Defaults to the whole day. */
     slotMinMinutes?: number;
     slotMaxMinutes?: number;
+    /** Defaults to today in the system time zone; pass it for any other zone. */
     today?: Temporal.PlainDate;
 }
 

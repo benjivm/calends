@@ -17,6 +17,7 @@ export interface GanttOptions<T extends CalendarEventInput = CalendarEventInput>
      */
     rangeEvents?: readonly CalendarEvent<T>[];
     weekStartsOn?: WeekDay;
+    /** Defaults to today in the system time zone; pass it for any other zone. */
     today?: Temporal.PlainDate;
     /** Lines between rows; any whose ends aren't both rows are dropped. */
     links?: readonly GanttLinkInput[];
@@ -221,12 +222,20 @@ function resolveLinks<T extends CalendarEventInput>(
                 label: source.label,
                 from,
                 to,
-                conflict:
-                    kind === 'dependency' &&
-                    Temporal.PlainDate.compare(to.event.startDate, from.event.endDate) < 0,
+                conflict: kind === 'dependency' && startsBeforeFinish(from, to),
             },
         ];
     });
+}
+
+/**
+ * All-day tasks finish at the end of their last day, so a successor starting that day overlaps it. Timed
+ * tasks only compare dates: finishing at 10:00 and starting at 14:00 the same day is fine.
+ */
+function startsBeforeFinish(from: GanttRow<any>, to: GanttRow<any>) {
+    const gap = Temporal.PlainDate.compare(to.event.startDate, from.event.endDate);
+
+    return from.event.allDay && to.event.allDay ? gap <= 0 : gap < 0;
 }
 
 function startsAfter(row: GanttRow<any>, other: GanttRow<any>) {

@@ -10,6 +10,20 @@ describe('navigation', () => {
         expect(navigate(date('2026-10-15'), 'day', 1)).toEqual(date('2026-10-16'));
     });
 
+    it("keeps the last day of the month when paging months, so the day doesn't drift", () => {
+        expect(navigate(date('2026-01-31'), 'month', 1)).toEqual(date('2026-02-28'));
+        expect(navigate(date('2026-02-28'), 'month', 1)).toEqual(date('2026-03-31'));
+        expect(navigate(date('2026-04-30'), 'month', -2)).toEqual(date('2026-02-28'));
+        expect(navigate(date('2028-02-29'), 'month', 12)).toEqual(date('2029-02-28'));
+    });
+
+    it('keeps any other day, clamped to a shorter month', () => {
+        expect(navigate(date('2026-01-30'), 'month', 1)).toEqual(date('2026-02-28'));
+        expect(navigate(date('2026-02-28'), 'month', 12)).toEqual(date('2027-02-28'));
+        expect(navigate(date('2026-03-15'), 'month', -1)).toEqual(date('2026-02-15'));
+        expect(navigate(date('2026-03-01'), 'month', 1)).toEqual(date('2026-04-01'));
+    });
+
     it('gives the unpadded range of a period', () => {
         expect(periodRange(date('2026-10-15'), 'month')).toEqual({
             start: date('2026-10-01'),

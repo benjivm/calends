@@ -10,12 +10,26 @@ export function navigate(
 ): Temporal.PlainDate {
     switch (view) {
         case 'month':
-            return date.add({ months: step });
+            return pageMonths(date, step);
         case 'week':
             return date.add({ weeks: step });
         case 'day':
             return date.add({ days: step });
     }
+}
+
+/**
+ * The last day of a month pages to the last day, so Jan 31 goes to Feb 28 and then Mar 31 instead of drifting
+ * to Mar 28. Any other day is kept, clamped to the shorter month.
+ */
+function pageMonths(date: Temporal.PlainDate, step: number): Temporal.PlainDate {
+    const month = date.with({ day: 1 }).add({ months: step });
+
+    if (date.day === date.daysInMonth) {
+        return month.with({ day: month.daysInMonth });
+    }
+
+    return month.with({ day: date.day });
 }
 
 /** The days of the period containing `date`, without padding out to whole weeks. */

@@ -52,7 +52,9 @@ const links = [
 ```
 
 - **A dependency** (the default `kind`) runs from the end of `from` to the start of `to`. When `to`
-  starts before `from` ends, the link has `conflict: true`, and the recipe draws it red.
+  starts before `from` ends, the link has `conflict: true`, and the recipe draws it red. Days are
+  compared, not times: two all-day tasks conflict when `to` starts on the day `from` finishes, since
+  that day is still taken, but a timed `to` may start later on the day a timed `from` finishes.
 - **A related link** has no direction. It's drawn from whichever row starts first, and the recipe
   dashes it with no arrow.
 - **A `label`** is text drawn on the line, such as a link type from your tracker ("blocks").

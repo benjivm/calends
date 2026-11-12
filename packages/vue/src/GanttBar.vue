@@ -23,7 +23,7 @@ const {
     onPointerdown,
     onKeydown,
 } = useEventState('GanttBar', () => props.row.event, {
-    axes: { horizontal: 'day', vertical: 'none' },
+    axes: { horizontal: 'day', vertical: 'none', pages: false },
 });
 </script>
 

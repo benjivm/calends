@@ -23,6 +23,7 @@ export interface TimelineOptions<
     slotMaxMinutes?: number;
     /** Minutes per header slot. */
     slotMinutes?: number;
+    /** Defaults to today in the system time zone; pass it for any other zone. */
     today?: Temporal.PlainDate;
 }
 

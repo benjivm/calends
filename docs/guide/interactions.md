@@ -40,7 +40,9 @@ Events that can be edited get `data-editable`, and the one being moved gets `dat
 | `resourceId`         | `string \| number \| null`, optional | Only when it moved to another resource row (`null` for the unassigned row).          |
 | `previousResourceId` | the same                             | The row it left.                                                                     |
 
-Neither fires when nothing changed, like a drop back where it started. A timed event moved to
+Neither fires when nothing changed, like a drop back where it started. A move is always
+`event-drop`, even a keyboard move that also stretched the end with Shift (its `end` is the
+stretched one); `event-resize` is only for a change to an edge alone. A timed event moved to
 another day keeps its time of day, and moves are by wall-clock time, so a 9:00 meeting dragged
 across a daylight saving change still starts at 9:00.
 
@@ -148,6 +150,12 @@ view:
 | Resources | A day          | The previous or next row |
 | Timeline  | `snap-minutes` | The previous or next row |
 | Gantt     | A day          | Nothing                  |
+
+Moving the event out of the period pages the view with it (updating `v-model:date`), and focus
+stays on the event. When the time grid or timeline hides hours with `slot-min-minutes` and
+`slot-max-minutes`, a step past the last visible slot goes to the next day's first one, and back
+from the first goes to the previous day's last, so the event never lands in hours nothing draws.
+The Gantt doesn't page: its axis already fits the tasks.
 
 Each step is announced through `CalendarRoot`'s live region, with the new date and time, and the
 drop emits the same events a pointer drop does. Navigating between days and events without moving

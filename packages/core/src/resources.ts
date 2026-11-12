@@ -21,6 +21,7 @@ export interface ResourceGridOptions<
     getResourceIds: (event: T) => readonly ResourceId[] | null | undefined;
     /** Adds a trailing row, with a null resource, for events that match none of `resources`. */
     unassigned?: boolean;
+    /** Defaults to today in the system time zone; pass it for any other zone. */
     today?: Temporal.PlainDate;
 }
 

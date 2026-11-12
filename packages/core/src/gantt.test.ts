@@ -108,6 +108,40 @@ describe('gantt links', () => {
         ]);
     });
 
+    it("flags an all-day successor starting on its predecessor's last day", () => {
+        const gantt = createGantt({
+            events: tasks([
+                { id: 'a', start: '2026-10-05', end: '2026-10-09' },
+                { id: 'b', start: '2026-10-09', end: '2026-10-12' },
+                { id: 'c', start: '2026-10-10', end: '2026-10-12' },
+            ]),
+            today: date('2026-10-05'),
+            links: [
+                { id: 1, from: 'a', to: 'b' },
+                { id: 2, from: 'a', to: 'c' },
+            ],
+        });
+
+        expect(gantt.links.map((link) => link.conflict)).toEqual([true, false]);
+    });
+
+    it("lets a timed successor start later on its predecessor's last day", () => {
+        const gantt = createGantt({
+            events: tasks([
+                { id: 'a', start: '2026-10-05T09:00', end: '2026-10-09T10:00' },
+                { id: 'b', start: '2026-10-09T14:00', end: '2026-10-12T10:00' },
+                { id: 'c', start: '2026-10-08T14:00', end: '2026-10-12T10:00' },
+            ]),
+            today: date('2026-10-05'),
+            links: [
+                { id: 1, from: 'a', to: 'b' },
+                { id: 2, from: 'a', to: 'c' },
+            ],
+        });
+
+        expect(gantt.links.map((link) => link.conflict)).toEqual([false, true]);
+    });
+
     it('draws a related link from whichever row starts first', () => {
         const gantt = createGantt({
             events: projects,

@@ -14,6 +14,7 @@ import {
     orderedRange,
     resizeEvent,
     snapMinutes,
+    wallMinutes,
     withTimes,
     type CalendarEvent,
     type CalendarEventInput,
@@ -60,6 +61,11 @@ export interface KeyboardAxes {
     vertical: 'week' | 'minutes' | 'resource' | 'none';
     /** Resource ids in row order, for `vertical: 'resource'`. */
     resourceOrder?: readonly (ResourceId | null)[];
+    /**
+     * Pages the view along with an event moved out of the period (default true). Off for the Gantt,
+     * whose axis fits its tasks instead.
+     */
+    pages?: boolean;
 }
 
 export interface InteractionOptions<T extends CalendarEventInput> {
@@ -69,6 +75,7 @@ export interface InteractionOptions<T extends CalendarEventInput> {
     timeZone: ComputedRef<string>;
     locale: ComputedRef<string | undefined>;
     rangeStart: ComputedRef<Temporal.PlainDate>;
+    rangeEnd: ComputedRef<Temporal.PlainDate>;
     slotMinMinutes: MaybeRefOrGetter<number | undefined>;
     slotMaxMinutes: MaybeRefOrGetter<number | undefined>;
     editable?: MaybeRefOrGetter<boolean | undefined>;
@@ -78,6 +85,8 @@ export interface InteractionOptions<T extends CalendarEventInput> {
     onEventDrop?: (detail: EventDropDetail<T>) => void;
     onEventResize?: (detail: EventDropDetail<T>) => void;
     onRangeSelect?: (detail: RangeSelectDetail) => void;
+    /** Called when a held event moves out of the period, so the view can page to it. */
+    onLeaveRange?: (date: Temporal.PlainDate) => void;
     /** Limits drop targets and refocusing to this element, so calendars on one page stay apart. */
     root?: MaybeRefOrGetter<HTMLElement | null | undefined>;
 }
@@ -100,6 +109,8 @@ export interface DragState<T extends CalendarEventInput> {
 }
 
 const DRAG_THRESHOLD = 4;
+
+const DAY_MINUTES = 24 * 60;
 
 const LONG_PRESS_MS = 500;
 
@@ -682,6 +693,10 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
         return `${format(times.start)} to ${format(times.end)}`;
     }
 
+    function startDayOf(times: EventTimes): Temporal.PlainDate {
+        return times.start instanceof Temporal.PlainDate ? times.start : times.start.toPlainDate();
+    }
+
     async function refocus(event: CalendarEvent<T>) {
         await nextTick();
 
@@ -692,6 +707,34 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
         )?.focus();
     }
 
+    /**
+     * A start stepped out of the visible hours jumps to the next day's first slot, or back to the
+     * previous day's last one, so the event doesn't vanish into hours nothing draws.
+     */
+    function skipHiddenHours(
+        event: CalendarEvent<T>,
+        delta: EventDelta,
+        sign: number,
+        step: number,
+    ): number {
+        const origin = wallMinutes(event.start as Temporal.ZonedDateTime);
+        const at = origin + (delta.days ?? 0) * DAY_MINUTES + (delta.minutes ?? 0);
+        const day = Math.floor(at / DAY_MINUTES);
+        const minutes = at - day * DAY_MINUTES;
+
+        if (minutes >= slotMin.value && minutes < slotMax.value) {
+            return delta.minutes ?? 0;
+        }
+
+        const target =
+            sign > 0
+                ? (minutes < slotMin.value ? day : day + 1) * DAY_MINUTES + slotMin.value
+                : (minutes >= slotMax.value ? day : day - 1) * DAY_MINUTES +
+                  Math.max(slotMin.value, slotMax.value - step);
+
+        return (delta.minutes ?? 0) + target - at;
+    }
+
     function keyboardPreview(state: DragState<T>): DragState<T> {
         const moved = moveEvent(state.event, state.moveDelta);
         const preview =
@@ -700,6 +743,18 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
                 : moved;
 
         return { ...state, preview };
+    }
+
+    /** A move that also stretched is still a move: the drop's detail carries the new end. */
+    function isPureStretch(state: DragState<T>): boolean {
+        const { moveDelta, endDelta } = state;
+
+        return (
+            !moveDelta.days &&
+            !moveDelta.minutes &&
+            state.resourceId === state.origin.resourceId &&
+            Boolean(endDelta.days || endDelta.minutes)
+        );
     }
 
     let releaseKeyboard: (() => void) | null = null;
@@ -761,10 +816,7 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
             keyboardEvent.stopPropagation();
             drag.value = null;
             endKeyboardDrag();
-            commit({
-                ...state,
-                kind: state.endDelta.days || state.endDelta.minutes ? 'resize-end' : 'move',
-            });
+            commit({ ...state, kind: isPureStretch(state) ? 'resize-end' : 'move' });
             announcement.value = `Dropped. ${describe(state.preview)}.`;
             refocus(event);
 
@@ -797,6 +849,10 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
             delta.days = (delta.days ?? 0) + sign * 7;
         } else if (unit === 'minutes' && step) {
             delta.minutes = (delta.minutes ?? 0) + sign * step;
+
+            if (!resizing) {
+                delta.minutes = skipHiddenHours(event, delta, sign, step);
+            }
         } else if (unit === 'resource' && axes.resourceOrder && !resizing) {
             const order = axes.resourceOrder;
             const index = order.indexOf(state.resourceId ?? null);
@@ -816,6 +872,17 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
         next = keyboardPreview(next);
         drag.value = next;
         announcement.value = describe(next.preview);
+
+        const startDay = startDayOf(next.preview);
+
+        if (
+            axes.pages !== false &&
+            (Temporal.PlainDate.compare(startDay, options.rangeStart.value) < 0 ||
+                Temporal.PlainDate.compare(startDay, options.rangeEnd.value) > 0)
+        ) {
+            options.onLeaveRange?.(startDay);
+        }
+
         refocus(event);
     }
 
