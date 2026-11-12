@@ -1,5 +1,36 @@
 # @calends/vue
 
+## 0.5.0
+
+### Minor Changes
+
+- e213381: `CalendarRoot`'s `visible-range` slot prop is the days on screen in every view: whole weeks in the month view,
+  the week or day otherwise. It was the month grid's range everywhere. The root slot no longer passes `grid`, which
+  made every view build the month grid; `MonthGrid`'s slot still has it.
+
+### Patch Changes
+
+- 1de6ac0: A held event no longer captures keys page-wide. Tab puts it back (focus still moves on), as does a press outside
+  the calendar, and Space, Enter, and arrows typed outside the calendar reach their own targets instead of moving or
+  dropping the event.
+- 2fb7484: A held event no longer disappears when the keyboard moves it out of view. Moving it past the period pages the view with
+  it and keeps focus on it, and stepping it past the visible hours of a time grid or timeline goes to the adjacent day's
+  window. The Gantt doesn't page.
+- 2e3eb69: The calendar's clock ticks on the minute boundary instead of a minute after it mounted, so the now line and
+  `data-past` no longer lag the real time by up to 59 seconds.
+- 2fb7484: A keyboard move that also stretched the end with Shift emits `event-drop` (with the stretched end) instead of
+  `event-resize`. `event-resize` is only for a change to an edge alone.
+- b8094a5: Keep drags and keyboard moves inside their own calendar when a page has more than one: an event dragged over
+  another calendar's days no longer drops there, and a keyboard move returns focus to the event in its own calendar
+  even when the other shows the same event id. `useCalendar` takes a `root` element for this; `CalendarRoot`
+  passes its own.
+- e213381: A timeline without `resources` no longer marks its single row `data-unassigned` or labels it "Unassigned".
+  `NowIndicator` draws on `now`'s date, like `TimelineNow`, so the two agree when `today` is set to another day.
+- Updated dependencies [9774488]
+- Updated dependencies [2fb7484]
+- Updated dependencies [2fb7484]
+    - @calends/core@0.5.0
+
 ## 0.4.1
 
 ### Patch Changes
