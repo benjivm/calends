@@ -22,6 +22,7 @@ import {
     normalizeEvents,
     periodRange,
     periodTitle,
+    visibleMonthRange,
     type CalendarEventInput,
     type CalendarResource,
     type CalendarView,
@@ -196,7 +197,16 @@ export function useCalendar<T extends CalendarEventInput>(options: UseCalendarOp
         periodTitle(date.value, view.value, weekStartsOn.value, locale.value),
     );
 
-    const visibleRange = computed(() => ({ start: grid.value.start, end: grid.value.end }));
+    /** The days on screen: whole weeks in the month view, the period otherwise. */
+    const visibleRange = computed(() =>
+        view.value === 'month'
+            ? visibleMonthRange(
+                  date.value,
+                  weekStartsOn.value,
+                  toValue(options.fixedWeeks) ?? false,
+              )
+            : range.value,
+    );
 
     function setDate(value: Temporal.PlainDate) {
         date.value = value;

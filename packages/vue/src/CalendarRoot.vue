@@ -132,7 +132,6 @@ const visuallyHidden = {
         :data-view="calendar.view.value"
     >
         <slot
-            :grid="calendar.grid.value"
             :date="date"
             :title="calendar.title.value"
             :visible-range="calendar.visibleRange.value"

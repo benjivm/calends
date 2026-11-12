@@ -75,14 +75,14 @@ link or image, which only CSS can stop, so give editable events `select-none` an
 
 ### Rows and containers
 
-| Attribute         | Set when                                              | On                           |
-| ----------------- | ----------------------------------------------------- | ---------------------------- |
-| `data-view`       | Always: `month`, `week`, or `day`.                    | `CalendarRoot`               |
-| `data-action`     | Always: `prev`, `next`, or `today`.                   | `CalendarNav`                |
-| `data-current`    | It's the `today` button and today is already in view. | `CalendarNav`                |
-| `data-unassigned` | It's the row for events with no matching resource.    | `ResourceRow`, `TimelineRow` |
-| `data-idle`       | It has no events in the visible range.                | `ResourceRow`, `TimelineRow` |
-| `data-scale`      | Always: `day`, `week`, or `month`.                    | `Gantt`                      |
+| Attribute         | Set when                                                                                                            | On                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `data-view`       | Always: `month`, `week`, or `day`.                                                                                  | `CalendarRoot`               |
+| `data-action`     | Always: `prev`, `next`, or `today`.                                                                                 | `CalendarNav`                |
+| `data-current`    | It's the `today` button and today is already in view.                                                               | `CalendarNav`                |
+| `data-unassigned` | It's the row for events with no matching resource. A timeline without `resources` has one row, and it isn't marked. | `ResourceRow`, `TimelineRow` |
+| `data-idle`       | It has no events in the visible range.                                                                              | `ResourceRow`, `TimelineRow` |
+| `data-scale`      | Always: `day`, `week`, or `month`.                                                                                  | `Gantt`                      |
 
 Attributes like `data-drop`, `data-resource-id`, `data-axis-start`, and `data-row-event-id` are how
 drag and drop finds its targets. They're stable, but they're plumbing, not styling hooks.

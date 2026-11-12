@@ -1,4 +1,5 @@
 import { h } from 'vue';
+import { createMonthGrid } from '@calends/core';
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import CalendarHeading from './CalendarHeading.vue';
@@ -32,6 +33,30 @@ const navigation = (props: Record<string, unknown> = {}) => {
 const heading = (wrapper: ReturnType<typeof navigation>) => wrapper.get('h2').text();
 const nav = (wrapper: ReturnType<typeof navigation>, action: string) =>
     wrapper.get(`[data-action="${action}"]`);
+
+vi.mock('@calends/core', async (importOriginal) => {
+    const core = await importOriginal<typeof import('@calends/core')>();
+
+    return { ...core, createMonthGrid: vi.fn(core.createMonthGrid) };
+});
+
+/** Mounts a root whose slot records the `visible-range` it's given. */
+function visibleRange(props: Record<string, unknown>) {
+    let range: { start: Temporal.PlainDate; end: Temporal.PlainDate } | undefined;
+
+    mount(CalendarRoot, {
+        props: { date: date('2026-10-14'), today: TODAY, ...props },
+        slots: {
+            default: (slot: { visibleRange: typeof range }) => {
+                range = slot.visibleRange;
+
+                return [];
+            },
+        },
+    });
+
+    return { start: range?.start.toString(), end: range?.end.toString() };
+}
 
 enableAutoUnmount(afterEach);
 
@@ -137,6 +162,23 @@ describe('CalendarRoot', () => {
         expect(style.getPropertyValue('--event-offset')).toBe('10%');
         expect(style.getPropertyValue('--event-length')).toBe('15%');
         expect(style.getPropertyValue('--event-start')).toBe('60');
+    });
+
+    it('gives the slot the days on screen in every view', () => {
+        expect(visibleRange({ view: 'month' })).toEqual({ start: '2026-09-27', end: '2026-10-31' });
+        expect(visibleRange({ view: 'month', fixedWeeks: true })).toEqual({
+            start: '2026-09-27',
+            end: '2026-11-07',
+        });
+        expect(visibleRange({ view: 'week' })).toEqual({ start: '2026-10-11', end: '2026-10-17' });
+        expect(visibleRange({ view: 'day' })).toEqual({ start: '2026-10-14', end: '2026-10-14' });
+    });
+
+    it('builds no month grid outside the month view', () => {
+        vi.mocked(createMonthGrid).mockClear();
+        mountWeek();
+
+        expect(createMonthGrid).not.toHaveBeenCalled();
     });
 
     it('renders nav controls as buttons that never submit a form', () => {

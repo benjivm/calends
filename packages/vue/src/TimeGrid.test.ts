@@ -155,7 +155,16 @@ describe('NowIndicator', () => {
         expect(lines(wrapper)).toHaveLength(0);
     });
 
-    it('renders nowhere when today is outside the week', () => {
+    it('follows now’s date rather than the today prop', () => {
+        const wrapper = mountWeek({ now: now('2026-10-16T12:00'), today: date('2026-10-14') });
+        const [line] = lines(wrapper);
+
+        expect(lines(wrapper)).toHaveLength(1);
+        expect(line.element.parentElement?.dataset.date).toBe('2026-10-16');
+        expect(wrapper.get('[data-today]').attributes('data-date')).toBe('2026-10-14');
+    });
+
+    it('renders nowhere when now is outside the week', () => {
         const wrapper = mountWeek({ now: now('2026-10-14T12:00'), date: date('2026-10-21') });
 
         expect(lines(wrapper)).toHaveLength(0);
