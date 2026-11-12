@@ -77,6 +77,47 @@ describe('createTimeline', () => {
         expect(offsets(rows[0])).toEqual([['span', 540, 660 + 120, 0]]);
     });
 
+    it('draws an event across the fall-back hour by its real duration', () => {
+        const { rows } = createTimeline({
+            start: date('2026-11-01'),
+            end: date('2026-11-01'),
+            events: normalizeEvents(
+                [
+                    {
+                        id: 'repeat',
+                        start: '2026-11-01T01:45:00-04:00',
+                        end: '2026-11-01T01:15:00-05:00',
+                    },
+                    {
+                        id: 'hour',
+                        start: '2026-11-01T01:30:00-04:00',
+                        end: '2026-11-01T01:30:00-05:00',
+                    },
+                    { id: 'normal', start: '2026-11-01T09:00:00', end: '2026-11-01T10:00:00' },
+                ],
+                { timeZone: 'America/New_York' },
+            ),
+        });
+
+        expect(offsets(rows[0])).toEqual([
+            ['hour', 90, 150, 0],
+            ['repeat', 105, 135, 1],
+            ['normal', 540, 600, 0],
+        ]);
+    });
+
+    it('rejects bad window and slot options', () => {
+        expect(() => timeline([], { slotMinutes: 0 })).toThrow(/slotMinutes/);
+        expect(() => timeline([], { slotMinutes: -30 })).toThrow(RangeError);
+        expect(() => timeline([], { slotMinMinutes: 600, slotMaxMinutes: 600 })).toThrow(
+            /slotMaxMinutes/,
+        );
+        expect(() => timeline([], { slotMinMinutes: 600, slotMaxMinutes: 300 })).toThrow(
+            RangeError,
+        );
+        expect(() => timeline([])).not.toThrow();
+    });
+
     it('covers whole day windows with all-day events and clips at the range edges', () => {
         const { rows } = timeline([
             { id: 'trip', start: '2026-10-10', end: '2026-10-12' },

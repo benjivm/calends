@@ -57,6 +57,12 @@ export function createTimeGrid<T extends CalendarEventInput>({
     slotMaxMinutes = DAY_MINUTES,
     today = Temporal.Now.plainDateISO(),
 }: TimeGridOptions<T>): TimeGrid<T> {
+    if (slotMaxMinutes <= slotMinMinutes) {
+        throw new RangeError(
+            `slotMaxMinutes (${slotMaxMinutes}) must be greater than slotMinMinutes (${slotMinMinutes})`,
+        );
+    }
+
     const sorted = [...events].sort(compareEventStarts);
     const allDayEvents = sorted.filter((event) => event.allDay);
     const timedEvents = sorted.filter((event) => !event.allDay);
@@ -105,6 +111,24 @@ export function wallMinutes(time: Temporal.ZonedDateTime | Temporal.PlainTime): 
     return time.hour * 60 + time.minute;
 }
 
+/**
+ * The end's wall-clock minutes. An event that starts and ends on the same day but across the
+ * fall-back hour (01:45 EDT to 01:15 EST) would end at or before its start, so it runs for its real
+ * duration from its start instead, up to midnight.
+ */
+export function wallEndMinutes(start: Temporal.ZonedDateTime, end: Temporal.ZonedDateTime): number {
+    const endWall = wallMinutes(end);
+    const startWall = wallMinutes(start);
+
+    if (endWall > startWall || !start.toPlainDate().equals(end.toPlainDate())) {
+        return endWall;
+    }
+
+    const duration = Math.round((end.epochMilliseconds - start.epochMilliseconds) / 60_000);
+
+    return Math.min(startWall + duration, DAY_MINUTES);
+}
+
 function pieceOnDay<T extends CalendarEventInput>(
     event: CalendarEvent<T>,
     date: Temporal.PlainDate,
@@ -125,12 +149,19 @@ function pieceOnDay<T extends CalendarEventInput>(
     const endsToday = end.toPlainDate().equals(date);
 
     const from = startsToday ? wallMinutes(start) : 0;
-    const to = endsToday ? wallMinutes(end) : DAY_MINUTES;
+    const to = endsToday ? wallEndMinutes(start, end) : DAY_MINUTES;
     const clippedFrom = Math.max(from, slotMinMinutes);
     const clippedTo = Math.min(to, slotMaxMinutes);
 
-    // Zero-length events still get placed, but nothing outside the window does.
-    if (clippedFrom > clippedTo || clippedFrom >= slotMaxMinutes || clippedTo < slotMinMinutes) {
+    const zeroLength = from === to;
+
+    // Zero-length events still get placed, but nothing outside the window does, including an
+    // event that ends exactly where the window starts.
+    if (
+        clippedFrom >= slotMaxMinutes ||
+        clippedTo < slotMinMinutes ||
+        (!zeroLength && clippedTo <= clippedFrom)
+    ) {
         return [];
     }
 

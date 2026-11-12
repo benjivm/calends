@@ -10,7 +10,7 @@ export type DateInput =
 export type WeekDay = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
-const HAS_OFFSET = /T.*(Z|[+-]\d{2}(:?\d{2})?)$/i;
+const HAS_OFFSET = /[T ].*(Z|[+-]\d{2}(:?\d{2})?)$/i;
 
 export function isDateOnly(input: DateInput): boolean {
     return typeof input === 'string' ? DATE_ONLY.test(input) : input instanceof Temporal.PlainDate;

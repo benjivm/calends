@@ -110,6 +110,82 @@ describe('createTimeGrid', () => {
         expect(grid.windowMinutes).toBe(11 * 60);
     });
 
+    it('drops an event that ends where the window starts', () => {
+        const grid = week(
+            [
+                { id: 'before', start: '2026-10-12T07:00:00', end: '2026-10-12T08:00:00' },
+                { id: 'overnight', start: '2026-10-12T22:00:00', end: '2026-10-13T08:00:00' },
+            ],
+            { slotMinMinutes: 8 * 60, slotMaxMinutes: 18 * 60 },
+        );
+
+        expect(grid.days[1].events).toHaveLength(0);
+        expect(grid.days[2].events).toHaveLength(0);
+    });
+
+    it('keeps an overnight event that ends at the window start on its first day', () => {
+        const grid = week(
+            [{ id: 'overnight', start: '2026-10-12T16:00:00', end: '2026-10-13T08:00:00' }],
+            { slotMinMinutes: 8 * 60, slotMaxMinutes: 18 * 60 },
+        );
+
+        expect(grid.days[1].events[0]).toMatchObject({
+            startMinutes: 8 * 60,
+            endMinutes: 10 * 60,
+            endsAfter: true,
+        });
+        expect(grid.days[2].events).toHaveLength(0);
+    });
+
+    it('still places a zero-length event at the window start', () => {
+        const grid = week(
+            [{ id: 'ping', start: '2026-10-12T08:00:00', end: '2026-10-12T08:00:00' }],
+            { slotMinMinutes: 8 * 60, slotMaxMinutes: 18 * 60 },
+        );
+
+        expect(layout(grid, 1)).toEqual({ ping: [0, 0, 0, 1] });
+    });
+
+    it('draws an event across the fall-back hour by its real duration', () => {
+        const grid = createTimeGrid({
+            start: date('2026-11-01'),
+            end: date('2026-11-01'),
+            events: normalizeEvents(
+                [
+                    {
+                        id: 'repeat',
+                        start: '2026-11-01T01:45:00-04:00',
+                        end: '2026-11-01T01:15:00-05:00',
+                    },
+                    {
+                        id: 'hour',
+                        start: '2026-11-01T01:30:00-04:00',
+                        end: '2026-11-01T01:30:00-05:00',
+                    },
+                    { id: 'normal', start: '2026-11-01T09:00:00', end: '2026-11-01T10:00:00' },
+                ],
+                { timeZone: 'America/New_York' },
+            ),
+        });
+
+        expect(
+            Object.fromEntries(
+                grid.days[0].events.map((piece) => [
+                    piece.event.id,
+                    [piece.startMinutes, piece.endMinutes],
+                ]),
+            ),
+        ).toEqual({ repeat: [105, 135], hour: [90, 150], normal: [540, 600] });
+    });
+
+    it('rejects a window that ends before it starts', () => {
+        expect(() => week([], { slotMinMinutes: 600, slotMaxMinutes: 600 })).toThrow(
+            /slotMaxMinutes/,
+        );
+        expect(() => week([], { slotMinMinutes: 600, slotMaxMinutes: 300 })).toThrow(RangeError);
+        expect(() => week([])).not.toThrow();
+    });
+
     it('keeps all-day events out of the hours and packs them in the all-day row', () => {
         const grid = week([
             { id: 'trip', start: '2026-10-12', end: '2026-10-14' },
