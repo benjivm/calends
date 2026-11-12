@@ -711,6 +711,21 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
 
     onScopeDispose(endKeyboardDrag);
 
+    function cancelKeyboardDrag() {
+        drag.value = null;
+        endKeyboardDrag();
+        announcement.value = 'Move cancelled.';
+    }
+
+    /** Outside the calendar, except `body`, where focus briefly lands while the event re-renders. */
+    function isOutside(target: EventTarget | null): boolean {
+        const root = toValue(options.root);
+
+        return (
+            !!root && target instanceof Node && target !== document.body && !root.contains(target)
+        );
+    }
+
     function handleHeldKey(keyboardEvent: KeyboardEvent) {
         const state = drag.value;
 
@@ -720,15 +735,22 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
             return;
         }
 
+        if (isOutside(keyboardEvent.target)) return;
+
         const event = state.event;
         const axes = state.axes!;
+
+        // Focus still moves on, so the window stops reading keys typed elsewhere.
+        if (keyboardEvent.key === 'Tab') {
+            cancelKeyboardDrag();
+
+            return;
+        }
 
         if (keyboardEvent.key === 'Escape') {
             keyboardEvent.preventDefault();
             keyboardEvent.stopPropagation();
-            drag.value = null;
-            endKeyboardDrag();
-            announcement.value = 'Move cancelled.';
+            cancelKeyboardDrag();
             refocus(event);
 
             return;
@@ -799,8 +821,9 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
 
     /**
      * Space picks an event up; then arrows move it (Shift+arrows stretch its end), Space or
-     * Enter drops it, and Escape puts it back. While it's held, keys are read on the window:
-     * each move re-renders the event in its new cell, which briefly takes focus away.
+     * Enter drops it, and Escape or Tab puts it back, as does a press outside the calendar. While
+     * it's held, keys are read on the window: each move re-renders the event in its new cell,
+     * which briefly takes focus away.
      */
     function handleEventKeydown(
         keyboardEvent: KeyboardEvent,
@@ -827,9 +850,16 @@ export function useInteractions<T extends CalendarEventInput>(options: Interacti
         announcement.value =
             'Picked up. Arrow keys move it, Shift with arrows changes its end, Space drops it, Escape cancels.';
 
+        const cancelOnOutsidePress = (pointerEvent: PointerEvent) => {
+            if (isOutside(pointerEvent.target)) cancelKeyboardDrag();
+        };
+
         window.addEventListener('keydown', handleHeldKey, { capture: true });
-        releaseKeyboard = () =>
+        window.addEventListener('pointerdown', cancelOnOutsidePress, { capture: true });
+        releaseKeyboard = () => {
             window.removeEventListener('keydown', handleHeldKey, { capture: true });
+            window.removeEventListener('pointerdown', cancelOnOutsidePress, { capture: true });
+        };
     }
 
     return {

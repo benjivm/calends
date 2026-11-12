@@ -128,7 +128,7 @@ The calendar never changes your `events`. It emits the intent, and you commit it
 - `range-select` carries the selected `start`, `end`, `allDay`, and `resourceId`.
 
 The keyboard works too: Space picks an event up, arrows move it, Shift with arrows changes its end,
-Space drops it, and Escape cancels. Each move is announced in a live region.
+Space drops it, and Escape or Tab cancels. Each move is announced in a live region.
 
 ## Server rendering
 

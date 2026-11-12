@@ -1,6 +1,6 @@
 import { nextTick } from 'vue';
 import { enableAutoUnmount } from '@vue/test-utils';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import {
     announcement,
     cell,
@@ -758,5 +758,82 @@ describe('two calendars on one page', () => {
 
         expect(document.activeElement?.closest('[data-event-id]')).toBe(eventElement(wrapper, 1));
         expect(other.element.contains(document.activeElement)).toBe(false);
+    });
+});
+
+describe('while an event is held', () => {
+    /** A field beside the calendar, removed again after the test. */
+    function outsideInput() {
+        const input = document.createElement('input');
+
+        document.body.append(input);
+        onTestFinished(() => input.remove());
+
+        return input;
+    }
+
+    it('puts it back on Tab and lets focus move on', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+
+        await pickUp(wrapper, 1);
+        await pressOnWindow('ArrowRight');
+
+        const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+
+        document.activeElement!.dispatchEvent(tab);
+        await nextTick();
+
+        expect(tab.defaultPrevented).toBe(false);
+        expect(startDayOf(wrapper, 1)).toBe('2026-10-14');
+        expect(announcement(wrapper)).toBe('Move cancelled.');
+
+        await pressOnWindow(' ');
+        expect(drops(wrapper)).toHaveLength(0);
+    });
+
+    it('leaves keys typed outside the calendar alone', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const input = outsideInput();
+
+        await pickUp(wrapper, 1);
+        input.focus();
+
+        const space = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
+
+        input.dispatchEvent(space);
+        await nextTick();
+
+        expect(space.defaultPrevented).toBe(false);
+        expect(drops(wrapper)).toHaveLength(0);
+        expect(eventElement(wrapper, 1).hasAttribute('data-dragging')).toBe(true);
+    });
+
+    it('still reads arrows when focus has dropped to the body mid-re-render', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+
+        await pickUp(wrapper, 1);
+        (document.activeElement as HTMLElement).blur();
+        document.body.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }),
+        );
+        await nextTick();
+
+        expect(startDayOf(wrapper, 1)).toBe('2026-10-15');
+    });
+
+    it('puts it back on a press outside the calendar', async () => {
+        const wrapper = mountMonth({ events: allDay, editable: true });
+        const input = outsideInput();
+
+        await pickUp(wrapper, 1);
+        await pressOnWindow('ArrowRight');
+        input.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+        await nextTick();
+
+        expect(startDayOf(wrapper, 1)).toBe('2026-10-14');
+        expect(announcement(wrapper)).toBe('Move cancelled.');
+
+        await pressOnWindow(' ');
+        expect(drops(wrapper)).toHaveLength(0);
     });
 });

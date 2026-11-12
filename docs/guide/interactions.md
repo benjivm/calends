@@ -137,8 +137,9 @@ it as usual.
 ## Keyboard
 
 With `editable`, Space on a focused event picks it up, the arrow keys move it, Shift with
-the arrows moves its end instead, Space or Enter drops it, and Escape puts it back. What the arrows
-do depends on the view:
+the arrows moves its end instead, Space or Enter drops it, and Escape puts it back. Tab, or a press
+outside the calendar, puts it back too, and focus moves on as usual. What the arrows do depends on the
+view:
 
 | View      | Left / Right   | Up / Down                |
 | --------- | -------------- | ------------------------ |
