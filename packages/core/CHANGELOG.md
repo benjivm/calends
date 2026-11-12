@@ -1,5 +1,24 @@
 # @calends/core
 
+## 0.5.0
+
+### Minor Changes
+
+- 2fb7484: Paging months from a month's last day lands on the next month's last day, so Jan 31 goes to Feb 28 and then Mar 31
+  instead of drifting to Mar 28. Any other day is kept, clamped to a shorter month. This changes the `v-model:date`
+  values the previous and next buttons produce.
+
+### Patch Changes
+
+- 9774488: Fix time grid and timeline layout edge cases: an event that ends exactly where the visible window starts is no longer
+  drawn as a zero-length piece at the top; an event across the fall-back hour (01:45 EDT to 01:15 EST) draws for its
+  real duration instead of vanishing from the time grid or getting a negative length on the timeline;
+  `createTimeGrid` and `createTimeline` throw a `RangeError` when `slotMaxMinutes` isn't greater than
+  `slotMinMinutes`, and `createTimeline` when `slotMinutes` isn't positive (it looped forever); and ISO strings with a
+  space separator and an offset, such as `'2026-11-02 09:00Z'`, parse as instants instead of throwing.
+- 2fb7484: A Gantt dependency between two all-day tasks is a conflict when the successor starts on the predecessor's last day.
+  Timed tasks still only conflict when the successor starts on an earlier day.
+
 ## 0.4.1
 
 No changes in this release.
