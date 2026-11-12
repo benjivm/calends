@@ -85,7 +85,9 @@ describe('Timeline layout', () => {
         expect(style(eventElement(wrapper, 'install'), '--event-lane')).toBe('0');
         expect(style(eventElement(wrapper, 'repair'), '--event-lane')).toBe('1');
         expect(style(eventElement(wrapper, 'survey'), '--event-lane')).toBe('0');
-        expect(style(wrapper.get('[data-unassigned]').element, '--row-lanes')).toBe('2');
+        expect(style(wrapper.get('[role="group"] [role="group"]').element, '--row-lanes')).toBe(
+            '2',
+        );
     });
 
     it('marks an event cut off by the hidden hours', () => {
@@ -126,13 +128,41 @@ describe('Timeline layout', () => {
         expect(bo.attributes('data-unassigned')).toBeUndefined();
     });
 
-    it('labels the single row of a calendar without resources as unassigned', () => {
+    it('leaves the single row of a calendar without resources unlabelled', () => {
         const wrapper = mountTimeline();
-        const row = wrapper.get('[data-unassigned]');
+        const row = wrapper.get('[role="group"] [role="group"]');
 
-        expect(row.attributes('aria-label')).toBe('Unassigned');
+        expect(row.attributes('data-unassigned')).toBeUndefined();
+        expect(row.attributes('aria-label')).toBeUndefined();
         expect(row.attributes('data-idle')).toBe('');
         expect(tracks(wrapper)[0].dataset.resourceId).toBeUndefined();
+    });
+
+    it('marks the extra row for events with no matching resource as unassigned', () => {
+        const wrapper = mountTimeline({
+            events: [
+                ...ASSIGNED,
+                {
+                    id: 'orphan',
+                    title: 'Orphan',
+                    start: '2026-10-14T11:00',
+                    end: '2026-10-14T12:00',
+                    resourceIds: ['cy'],
+                },
+            ],
+            resources: RESOURCES,
+            getResourceIds: (event: TestEvent) => event.resourceIds,
+            unassigned: true,
+            ...HOURS,
+        });
+        const rows = wrapper.findAll('[role="group"] [role="group"]');
+        const extra = rows.at(-1)!;
+
+        expect(rows).toHaveLength(3);
+        expect(rows[0].attributes('data-unassigned')).toBeUndefined();
+        expect(extra.attributes('data-unassigned')).toBe('');
+        expect(extra.attributes('aria-label')).toBe('Unassigned');
+        expect(extra.element.contains(eventElement(wrapper, 'orphan'))).toBe(true);
     });
 });
 

@@ -175,7 +175,7 @@ ends, and give each instance its own `id`.
 | `week-starts-on`   | `1`–`7` (ISO: 1 is Monday, 7 is Sunday) | `7`                |                                                                                                                   |
 | `time-zone`        | IANA zone string                        | the runtime's zone | Where timed events are placed.                                                                                    |
 | `locale`           | BCP 47 string                           | the runtime's      | For titles, weekday names, and labels.                                                                            |
-| `today`            | `Temporal.PlainDate`                    | from `now`         | Override for `data-today`, past events, and the today button.                                                     |
+| `today`            | `Temporal.PlainDate`                    | from `now`         | Override for `data-today`, past events, and the today button. The now line stays on `now`'s date.                 |
 | `now`              | `Temporal.ZonedDateTime`                | the clock          | Override for the current time, for the now line and past timed events. See [Server rendering](#server-rendering). |
 | `fixed-weeks`      | `boolean`                               | `false`            | Always draw six weeks in the month grid.                                                                          |
 | `max-lanes`        | `number`                                | unlimited          | Lanes per month week, counting the "+N more" lane.                                                                |
@@ -196,6 +196,16 @@ ends, and give each instance its own `id`.
 It emits `event-drop`, `event-resize`, and `range-select`. The calendar never changes `events`:
 your app applies the change, then passes the updated events back in. See
 [Interactions](/guide/interactions).
+
+Its default slot gets:
+
+| Slot prop       | Type                 | What it is                                                                                                      |
+| --------------- | -------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `date`          | `Temporal.PlainDate` | The bound date.                                                                                                 |
+| `title`         | `string`             | The period's title in `locale`, as `CalendarHeading` shows it.                                                  |
+| `visible-range` | `{ start, end }`     | The first and last days on screen: whole weeks in the month view, the period otherwise. Use it to fetch events. |
+| `prev` / `next` | `() => void`         | Page back or forward by the view.                                                                               |
+| `go-to-today`   | `() => void`         | Jump to today.                                                                                                  |
 
 ## Server rendering
 

@@ -6,8 +6,8 @@ import { percent } from './percent.js';
 import { injectCalendarContext } from './useCalendar.js';
 
 /**
- * Renders only in today's column and inside the visible window; exposes `--now-offset` as a
- * percentage of the window, and `--now` in minutes.
+ * Renders only in now's column, which can differ from `data-today` when `today` is set, and inside
+ * the visible window; exposes `--now-offset` as a percentage of the window, and `--now` in minutes.
  */
 const props = withDefaults(defineProps<PrimitiveProps & { day: TimeGridDay<any> }>(), {
     as: 'div',
@@ -15,12 +15,14 @@ const props = withDefaults(defineProps<PrimitiveProps & { day: TimeGridDay<any> 
 
 const { now, timeZone, timeGrid } = injectCalendarContext('NowIndicator');
 
-const minutes = computed(
-    () => wallMinutes(now.value.withTimeZone(timeZone.value)) - timeGrid.value.slotMinMinutes,
-);
+const local = computed(() => now.value.withTimeZone(timeZone.value));
+const minutes = computed(() => wallMinutes(local.value) - timeGrid.value.slotMinMinutes);
 
 const isVisible = computed(
-    () => props.day.isToday && minutes.value >= 0 && minutes.value <= timeGrid.value.windowMinutes,
+    () =>
+        props.day.date.equals(local.value.toPlainDate()) &&
+        minutes.value >= 0 &&
+        minutes.value <= timeGrid.value.windowMinutes,
 );
 </script>
 
